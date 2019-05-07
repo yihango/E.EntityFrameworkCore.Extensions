@@ -1,0 +1,242 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>E.EntityFrameworkCore.Extensions</name>
+    </assembly>
+    <members>
+        <member name="T:E.EntityFrameworkCoreTableViewExtensions">
+            <summary>
+            EntityFrameworkCore 表和视图的扩展
+            [Extension to the EntityFrameworkCore table and view]
+            </summary>
+        </member>
+        <member name="P:E.EntityFrameworkCoreTableViewExtensions.UseUpperCase">
+            <summary>
+            启用转大写,默认为false,默认转为小写
+            [Enables uppercase, false by default, and lowercase by default]
+            </summary>
+        </member>
+        <member name="P:E.EntityFrameworkCoreTableViewExtensions.UseDefaultStringMaxLength">
+            <summary>
+            启用设置字符串默认长度,默认为 false
+            [Sets the default length of the string to false by default]
+            </summary>
+        </member>
+        <member name="P:E.EntityFrameworkCoreTableViewExtensions.DefaultStringMaxLength">
+            <summary>
+            默认字符串使用的长度 (默认 512)
+            [The length of the default string used (default 512)]
+            </summary>
+        </member>
+        <member name="P:E.EntityFrameworkCoreTableViewExtensions.PropertyCheck">
+            <summary>
+            外部自定义属性映射到字段检查方法
+            [External custom attributes map to field inspection methods]
+            </summary>
+        </member>
+        <member name="P:E.EntityFrameworkCoreTableViewExtensions.DbMapTypes">
+            <summary>
+            所有允许映射到数据库的字段类型(谨慎更改)
+            [All field types that allow mapping to the database (changed carefully)]
+            </summary>
+        </member>
+        <member name="P:E.EntityFrameworkCoreTableViewExtensions.DbSetTypeStr">
+            <summary>
+            DbSet 类型字符串(谨慎修改)
+            [DbSet type string (carefully modified)]
+            </summary>
+        </member>
+        <member name="P:E.EntityFrameworkCoreTableViewExtensions.DbQueryTypeStr">
+            <summary>
+            DbQuery 类型字符串(谨慎修改)
+            [DbQuery type string (carefully modified)]
+            </summary>
+        </member>
+        <member name="P:E.EntityFrameworkCoreTableViewExtensions.TableAttr">
+            <summary>
+            表特性类型
+            [Table property type]
+            </summary>
+        </member>
+        <member name="P:E.EntityFrameworkCoreTableViewExtensions.ColumnAttr">
+            <summary>
+            列特性类型
+            [Column attribute type]
+            </summary>
+        </member>
+        <member name="P:E.EntityFrameworkCoreTableViewExtensions.NoMappedAttribute">
+            <summary>
+            不映射特性类型
+            [Attribute types are not mapped]
+            </summary>
+        </member>
+        <member name="P:E.EntityFrameworkCoreTableViewExtensions.StringType">
+            <summary>
+            字符串类型
+            [String type]
+            </summary>
+        </member>
+        <member name="P:E.EntityFrameworkCoreTableViewExtensions.StringLengthAttr">
+            <summary>
+            字符串长度特性类型
+            [String length attribute type]
+            </summary>
+        </member>
+        <member name="M:E.EntityFrameworkCoreTableViewExtensions.SetAllDbSetTableNameAndColumnName``1(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <summary>
+            设置DbContext的所有DbSet 对应的 表名和列名
+            [Set the table and column names for all dbsets of the DbContext]
+            </summary>
+            <typeparam name="DbContext"></typeparam>
+            <param name="builder"></param>
+            <returns></returns>
+        </member>
+        <member name="M:E.EntityFrameworkCoreTableViewExtensions.SetAllDbQueryViewNameAndColumnName``1(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <summary>
+            设置DbContext的所有DbQuery  对应的 视图名和列名
+            [Set the view name and column name for all dbqueries of the DbContext]
+            </summary>
+            <typeparam name="DbContext"></typeparam>
+            <param name="builder"></param>
+            <returns></returns>
+        </member>
+        <member name="M:E.EntityFrameworkCoreTableViewExtensions.SetTableNameAndAllCloumName(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder,System.String,System.String)">
+            <summary>
+            自动将表名和列名转换大小写,部分特殊列需要手动处理
+            [Automatically converts table and column names to case, and some special columns need to be handled manually]
+            </summary>
+            <param name="builder"></param>
+            <param name="tableName"></param>
+            <param name="schema"></param>
+            <returns></returns>
+        </member>
+        <member name="M:E.EntityFrameworkCoreTableViewExtensions.SetTableName(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder,System.String,System.String)">
+            <summary>
+            设置表名和Schema [Set the table name and Schema]
+            优先级:
+            * 传入的 tableName 和 schema
+            * 实体标记的 TableAttribute
+            * 实体名称, schema 不设置
+            </summary>
+            <param name="builder"></param>
+            <param name="tableName"></param>
+            <param name="schema"></param>
+            <returns></returns>
+        </member>
+        <member name="M:E.EntityFrameworkCoreTableViewExtensions.SetAllColumnName(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder)">
+            <summary>
+            设置所有列名,部分特殊列需要手动处理
+            [Set all column names. Some special columns need to be handled manually]
+            </summary>
+            <param name="builder"></param>
+            <returns></returns>
+        </member>
+        <member name="M:E.EntityFrameworkCoreTableViewExtensions.SetViewNameAndAllCloumName(Microsoft.EntityFrameworkCore.Metadata.Builders.QueryTypeBuilder,System.String,System.String)">
+            <summary>
+            自动将视图名和列名转换大小写,部分特殊列需要手动处理
+            [Automatically converts view and column names to case, and some special columns need to be handled manually]
+            </summary>
+            <param name="builder"></param>
+            <param name="tableName"></param>
+            <param name="schema"></param>
+            <returns></returns>
+        </member>
+        <member name="M:E.EntityFrameworkCoreTableViewExtensions.SetViewName(Microsoft.EntityFrameworkCore.Metadata.Builders.QueryTypeBuilder,System.String,System.String)">
+            <summary>
+            设置视图名称和Schema [Set the view name and Schema]
+            优先级:
+            * 传入的 tableName 和 schema
+            * 实体标记的 TableAttribute
+            * 实体名称, schema 不设置
+            </summary>
+            <typeparam name="TEntity"></typeparam>
+            <param name="builder">ModelBuiler</param>
+            <param name="viewName">表名</param>
+            <param name="schema">表schema</param>
+            <returns>ModelBuiler</returns>
+        </member>
+        <member name="M:E.EntityFrameworkCoreTableViewExtensions.SetAllColumnName(Microsoft.EntityFrameworkCore.Metadata.Builders.QueryTypeBuilder)">
+            <summary>
+            设置所有列名,部分特殊列需要手动处理
+            [Set all column names. Some special columns need to be handled manually]
+            </summary>
+            <param name="builder"></param>
+            <returns></returns>
+        </member>
+        <member name="M:E.EntityFrameworkCoreTableViewExtensions.SetColumnName(Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder,System.String)">
+            <summary>
+            设置列名 [Set the column name]
+            优先级:
+            * 传入的 columnName
+            * 字段标记的 ColumnAttribute 的 Name
+            * fieldName
+            </summary>
+            <param name="property"></param>
+            <param name="columnName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:E.EntityFrameworkCoreTableViewExtensions.CheckPropIsColumn(System.Reflection.PropertyInfo)">
+            <summary>
+            检查属性是否为可映射到数据库
+            [Check if the property is mappable to the database]
+            </summary>
+            <param name="property"></param>
+            <returns>是返回true，否返回false</returns>
+        </member>
+        <member name="M:E.EntityFrameworkCoreTableViewExtensions.CheckPropIsStringAndNoSetMaxLength(System.Reflection.PropertyInfo)">
+            <summary>
+            检查属性是否是字符串类型,且没有设置长度
+            [Checks whether the property is of type string and does not set the length]
+            </summary>
+            <param name="property"></param>
+            <returns></returns>
+        </member>
+        <member name="M:E.EntityFrameworkCoreTableViewExtensions.CheckStatic(System.Reflection.PropertyInfo)">
+            <summary>
+            检查是否是静态成员
+            [Check if it is a static member]
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:E.EntityFrameworkCoreTableViewExtensions.GetTableAttribute(System.Type)">
+            <summary>
+            获取 TableAttribute
+            [Get TableAttribute]
+            </summary>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="M:E.EntityFrameworkCoreTableViewExtensions.GetColumnAttribute(System.Type)">
+            <summary>
+            获取 ColumnAttribute
+            [Get ColumnAttribute]
+            </summary>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="M:E.EntityFrameworkCoreTableViewExtensions.GetDbSetTypeStr(System.Reflection.PropertyInfo)">
+            <summary>
+            获取DbSet类型字符串
+            [Gets the DbSet type string]
+            </summary>
+            <param name="property"></param>
+            <returns></returns>
+        </member>
+        <member name="M:E.EntityFrameworkCoreTableViewExtensions.GetDbQueryType(System.Reflection.PropertyInfo)">
+            <summary>
+            获取DbQuery Type
+            [Get DbQuery Type]
+            </summary>
+            <param name="property"></param>
+            <returns></returns>
+        </member>
+        <member name="M:E.EntityFrameworkCoreTableViewExtensions.C(System.String)">
+            <summary>
+            转换字符串大小写
+            [Converts string case]
+            </summary>
+            <param name="str"></param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>

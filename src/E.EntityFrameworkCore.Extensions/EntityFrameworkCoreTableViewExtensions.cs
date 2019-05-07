@@ -23,7 +23,7 @@ namespace E
         /// 启用转大写,默认为false,默认转为小写
         /// [Enables uppercase, false by default, and lowercase by default]
         /// </summary>
-        public static bool ToUpperEnable { get; set; }
+        public static bool UseUpperCase { get; set; }
         /// <summary>
         /// 启用设置字符串默认长度,默认为 false
         /// [Sets the default length of the string to false by default]
@@ -33,7 +33,7 @@ namespace E
         /// 默认字符串使用的长度 (默认 512)
         /// [The length of the default string used (default 512)]
         /// </summary>
-        public static int Default_String_Length { get; set; } = 512;
+        public static int DefaultStringMaxLength { get; set; } = 512;
         /// <summary>
         /// 外部自定义属性映射到字段检查方法
         /// [External custom attributes map to field inspection methods]
@@ -44,7 +44,6 @@ namespace E
         /// [All field types that allow mapping to the database (changed carefully)]
         /// </summary>
         public static List<string> DbMapTypes { get; set; } = new List<string>() {
-            "System.Int32",
             "System.Boolean",
             "System.Byte",
             "System.Byte[]",
@@ -257,7 +256,7 @@ namespace E
                 if (UseDefaultStringMaxLength && prop.CheckPropIsStringAndNoSetMaxLength())
                 {
                     // 设置字符串列默认长度
-                    propertyBuilder.HasMaxLength(Default_String_Length);
+                    propertyBuilder.HasMaxLength(DefaultStringMaxLength);
                 }
             }
 
@@ -343,7 +342,7 @@ namespace E
                 if (UseDefaultStringMaxLength && prop.CheckPropIsStringAndNoSetMaxLength())
                 {
                     // 设置字符串列默认长度
-                    propertyBuilder.HasMaxLength(Default_String_Length);
+                    propertyBuilder.HasMaxLength(DefaultStringMaxLength);
                 }
             }
 
@@ -530,7 +529,7 @@ namespace E
         /// <returns></returns>
         private static string C(string str)
         {
-            if (ToUpperEnable)
+            if (UseUpperCase)
             {
                 return str?.ToUpperInvariant();
             }
