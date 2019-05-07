@@ -5,15 +5,16 @@
     <RootNamespace>E</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Version>0.0.3</Version>
+    <Version>0.0.4</Version>
     <Authors>staneee</Authors>
     <Product />
     <NeutralLanguage>zh-CN</NeutralLanguage>
     <Copyright>staneee</Copyright>
     <RepositoryUrl>https://github.com/staneee/E.EntityFrameworkCore.Extensions</RepositoryUrl>
     <RepositoryType>github</RepositoryType>
-    <PackageProjectUrl></PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/staneee/E.EntityFrameworkCore.Extensions</PackageProjectUrl>
     <PackageTags>E,Data,EntityFrameworkCore,EFCore,Core</PackageTags>
+    <Description>Extension to the EntityFrameworkCore API</Description>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
