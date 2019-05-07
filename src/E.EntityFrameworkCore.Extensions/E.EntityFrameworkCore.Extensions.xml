@@ -198,6 +198,14 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:E.EntityFrameworkCoreTableViewExtensions.CheckEnum(System.Reflection.PropertyInfo)">
+            <summary>
+            检查是否为枚举
+            [Check if it is an enumeration]
+            </summary>
+            <param name="property"></param>
+            <returns></returns>
+        </member>
         <member name="M:E.EntityFrameworkCoreTableViewExtensions.GetTableAttribute(System.Type)">
             <summary>
             获取 TableAttribute

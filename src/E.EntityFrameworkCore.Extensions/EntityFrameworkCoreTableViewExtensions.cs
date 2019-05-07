@@ -58,7 +58,7 @@ namespace E
             "System.UInt64",
             "System.Int16",
             "System.UInt16",
-            "System.String"
+            "System.String",
         };
         /// <summary>
         /// DbSet 类型字符串(谨慎修改)
@@ -410,6 +410,12 @@ namespace E
                 return false;
             }
 
+            // 检查枚举
+            if (CheckEnum(property))
+            {
+                return true;
+            }
+
             // 如果自定义了检查器,并通过了检查,返回true
             if (PropertyCheck != null && PropertyCheck.Invoke(property))
             {
@@ -449,6 +455,23 @@ namespace E
                 var setMethod = property.SetMethod;
                 return setMethod.IsStatic;
             }
+        }
+
+        /// <summary>
+        /// 检查是否为枚举
+        /// [Check if it is an enumeration]
+        /// </summary>
+        /// <param name="property"></param>
+        /// <returns></returns>
+        public static bool CheckEnum(this PropertyInfo property)
+        {
+            // System.Enum
+            if (property.PropertyType.BaseType != null && !string.IsNullOrWhiteSpace(property.PropertyType.BaseType.FullName))
+            {
+                return property.PropertyType.BaseType.FullName == "System.Enum";
+            }
+
+            return false;
         }
 
         /// <summary>
