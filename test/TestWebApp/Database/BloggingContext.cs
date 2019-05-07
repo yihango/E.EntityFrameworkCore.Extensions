@@ -70,6 +70,9 @@ namespace TestWebApp.Database
             //E.EntityFrameworkCoreTableViewExtensions.UseDefaultStringMaxLength = true;
             //E.EntityFrameworkCoreTableViewExtensions.DefaultStringMaxLength = 256;
 
+            E.EntityFrameworkCoreTableViewExtensions.UseColumnNameMaxLength = true;
+            E.EntityFrameworkCoreTableViewExtensions.ColumnNameMaxLength = 30;
+
             #endregion
 
 
