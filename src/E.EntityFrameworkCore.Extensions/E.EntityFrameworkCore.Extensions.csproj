@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>E</RootNamespace>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <Version>0.0.1</Version>
+    <Authors>staneee</Authors>
+    <Product />
+    <NeutralLanguage>zh-CN</NeutralLanguage>
+    <Copyright>staneee</Copyright>
+    <RepositoryUrl>https://github.com/staneee/E.EntityFrameworkCore.Extensions</RepositoryUrl>
+    <RepositoryType>github</RepositoryType>
+    <PackageProjectUrl></PackageProjectUrl>
+    <PackageTags>E,Data,EntityFrameworkCore,EFCore,Core</PackageTags>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>D:\develop\staneee\E.EntityFrameworkCore.Extensions\src\E.EntityFrameworkCore.Extensions\E.EntityFrameworkCore.Extensions.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.1.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="2.1.0" />
+  </ItemGroup>
+
+</Project>
