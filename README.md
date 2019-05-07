@@ -53,7 +53,7 @@ EntityFrameworkCore 的扩展库
 ```
   base.OnModelCreating(modelBuilder);
   
-  // 设置转大写为false
+  // 设置转大写为 true
   E.EntityFrameworkCoreTableViewExtensions.UseUpperCase = true;
   
   // 设置字段类型为字符串的默认长度(因为oracle限制字符串最大长度为2000),若字段标记 StringLength 则取 StringLength 长度
