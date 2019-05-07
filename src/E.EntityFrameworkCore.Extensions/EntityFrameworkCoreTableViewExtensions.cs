@@ -38,7 +38,7 @@ namespace E
         /// 外部自定义属性映射到字段检查方法
         /// [External custom attributes map to field inspection methods]
         /// </summary>
-        public static Func<PropertyInfo, bool> PropertyCheck { get; set; }
+        public static Func<PropertyInfo, bool> ColumnCheck { get; set; }
         /// <summary>
         /// 所有允许映射到数据库的字段类型(谨慎更改)
         /// [All field types that allow mapping to the database (changed carefully)]
@@ -438,7 +438,7 @@ namespace E
             }
 
             // 如果自定义了检查器,并通过了检查,返回true
-            if (PropertyCheck != null && PropertyCheck.Invoke(property))
+            if (ColumnCheck != null && ColumnCheck.Invoke(property))
             {
                 return true;
             }
