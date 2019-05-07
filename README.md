@@ -65,6 +65,10 @@ EntityFrameworkCore 的扩展库
   E.EntityFrameworkCoreTableViewExtensions.UseDefaultStringMaxLength = true;
   E.EntityFrameworkCoreTableViewExtensions.DefaultStringMaxLength = 256;
   
+  // 启用限制列名长度,超出长度自动裁剪(因为oracle限制列名最大长度为30)
+  E.EntityFrameworkCoreTableViewExtensions.UseColumnNameMaxLength = true;
+  E.EntityFrameworkCoreTableViewExtensions.ColumnNameMaxLength = 30;
+  
   // 将名为 YourContext 中的所有 DbSet 和 DbQuery 的表名、视图名、列名转换为大写
   modelBuilder.SetAllDbSetTableNameAndColumnName<YourContext>();
   modelBuilder.SetAllDbQueryViewNameAndColumnName<YourContext>();
