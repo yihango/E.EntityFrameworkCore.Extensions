@@ -91,6 +91,14 @@ namespace E
         /// [Column name maximum length, default 30]
         /// </summary>
         public static int ColumnNameMaxLength { get; set; } = 30;
+        /// <summary>
+        /// IEntityTypeConfiguration 接口字符串
+        /// </summary>
+        public static string IEntityTypeConfigurationTypeStr = typeof(IEntityTypeConfiguration<>).FullName;
+        /// <summary>
+        /// IQueryTypeConfiguration 接口字符串
+        /// </summary>
+        public static string IQueryTypeConfigurationTypeStr = typeof(IQueryTypeConfiguration<>).FullName;
 
         #endregion
 
@@ -123,22 +131,34 @@ namespace E
         /// </summary>
         static Type StringLengthAttr { get; set; } = typeof(StringLengthAttribute);
 
+        /// <summary>
+        /// 实现 IEntityTypeConfiguration 类型的集合
+        /// </summary>
+        static List<Type> EntityCfgTypes { get; set; }
+        /// <summary>
+        /// 实现 IQueryTypeConfiguration 类型的集合
+        /// </summary>
+        static List<Type> QueryCfgTypes { get; set; }
+
         #endregion
 
 
         #region 公开 数据库上下文扩展函数 ModelBuilder(DbContext)
 
+
         /// <summary>
         /// 设置DbContext的所有DbSet 对应的 表名和列名
         /// [Set the table and column names for all dbsets of the DbContext]
         /// </summary>
-        /// <typeparam name="DbContext"></typeparam>
+        /// <typeparam name="TDbContext"></typeparam>
         /// <param name="builder"></param>
+        /// <param name="ignoreExistEntityTypeConfigurations"></param>
         /// <returns></returns>
-        public static ModelBuilder SetAllDbSetTableNameAndColumnName<DbContext>(this ModelBuilder builder)
-            where DbContext : class
+        public static ModelBuilder SetAllDbSetTableNameAndColumnName<TDbContext>(this ModelBuilder builder,
+            bool ignoreExistEntityTypeConfigurations = false)
+            where TDbContext : DbContext
         {
-            var properties = typeof(DbContext).GetProperties();
+            var properties = typeof(TDbContext).GetProperties();
 
             var allDbSet = properties.Where(o => o.PropertyType.FullName.StartsWith(DbSetTypeStr)).ToList();
 
@@ -150,15 +170,22 @@ namespace E
             var dbSetName = string.Empty;
             var dbSetTypeStr = string.Empty;
 
+
+
             foreach (var dbSet in allDbSet)
             {
+                if (ignoreExistEntityTypeConfigurations && dbSet.IgnoreExistEntityTypeConfigurations<TDbContext>())
+                {
+                    continue;
+                }
+
                 if (DbSetCheck != null && !DbSetCheck(dbSet))
                 {
                     continue;
                 }
 
                 dbSetName = dbSet.Name;
-                dbSetTypeStr = dbSet.GetDbSetTypeStr();
+                dbSetTypeStr = dbSet.GetDbSetOrDbQueryTypeStr();
 
                 builder.Entity(dbSetTypeStr, (entityTypeBuilder) =>
                 {
@@ -173,13 +200,15 @@ namespace E
         /// 设置DbContext的所有DbQuery  对应的 视图名和列名
         /// [Set the view name and column name for all dbqueries of the DbContext]
         /// </summary>
-        /// <typeparam name="DbContext"></typeparam>
+        /// <typeparam name="TDbContext"></typeparam>
         /// <param name="builder"></param>
+        /// <param name="ignoreExistQueryTypeConfigurations"></param>
         /// <returns></returns>
-        public static ModelBuilder SetAllDbQueryViewNameAndColumnName<DbContext>(this ModelBuilder builder)
-            where DbContext : class
+        public static ModelBuilder SetAllDbQueryViewNameAndColumnName<TDbContext>(this ModelBuilder builder,
+            bool ignoreExistQueryTypeConfigurations = false)
+            where TDbContext : DbContext
         {
-            var properties = typeof(DbContext).GetProperties();
+            var properties = typeof(TDbContext).GetProperties();
             var allDbQuery = properties.Where(o => o.PropertyType.FullName.StartsWith(DbQueryTypeStr)).ToList();
 
             if (allDbQuery == null || allDbQuery.Count == 0)
@@ -192,13 +221,18 @@ namespace E
 
             foreach (var dbQuery in allDbQuery)
             {
+                if (ignoreExistQueryTypeConfigurations && dbQuery.IgnoreExistQueryTypeConfigurations<TDbContext>())
+                {
+                    continue;
+                }
+
                 if (DbQueryCheck != null && !DbQueryCheck(dbQuery))
                 {
                     continue;
                 }
 
                 dbQueryName = dbQuery.Name;
-                dbQueryType = dbQuery.GetDbQueryType();
+                dbQueryType = dbQuery.GetDbSetOrDbQueryType();
 
                 builder.Query(dbQueryType, (queryTypeBuilder) =>
                 {
@@ -323,11 +357,10 @@ namespace E
         /// * 实体标记的 TableAttribute
         /// * 实体名称, schema 不设置
         /// </summary>
-        /// <typeparam name="TEntity"></typeparam>
-        /// <param name="builder">ModelBuiler</param>
-        /// <param name="viewName">表名</param>
-        /// <param name="schema">表schema</param>
-        /// <returns>ModelBuiler</returns>
+        /// <param name="builder"></param>
+        /// <param name="viewName"></param>
+        /// <param name="schema"></param>
+        /// <returns></returns>
         public static QueryTypeBuilder SetViewName(
             this QueryTypeBuilder builder,
             string viewName = null,
@@ -542,12 +575,28 @@ namespace E
         }
 
         /// <summary>
-        /// 获取DbSet类型字符串
+        /// 获取 DbSet 或 DbQuery 类型字符串
         /// [Gets the DbSet type string]
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static string GetDbSetOrDbQueryTypeStr(this Type type)
+        {
+            var startIndex = type.FullName.IndexOf("[[") + 2;
+            var endIndex = type.FullName.IndexOf(",");
+            var entityTypeStr = type.FullName.Substring(startIndex, endIndex - startIndex);
+
+            return entityTypeStr;
+        }
+
+
+        /// <summary>
+        /// 获取 DbSet 或 DbQuery 类型字符串
+        /// [Get the DbSet or DbQuery type string]
         /// </summary>
         /// <param name="property"></param>
         /// <returns></returns>
-        public static string GetDbSetTypeStr(this PropertyInfo property)
+        public static string GetDbSetOrDbQueryTypeStr(this PropertyInfo property)
         {
             var startIndex = property.PropertyType.FullName.IndexOf("[[") + 2;
             var endIndex = property.PropertyType.FullName.IndexOf(",");
@@ -557,12 +606,12 @@ namespace E
         }
 
         /// <summary>
-        /// 获取DbQuery Type
-        /// [Get DbQuery Type]
+        /// 获取 DbSet 或 DbQuery 类型
+        /// [Get the DbSet or DbQuery type]
         /// </summary>
         /// <param name="property"></param>
         /// <returns></returns>
-        public static Type GetDbQueryType(this PropertyInfo property)
+        public static Type GetDbSetOrDbQueryType(this PropertyInfo property)
         {
             var startIndex = property.PropertyType.FullName.IndexOf("[[") + 2;
             var endIndex = property.PropertyType.FullName.IndexOf(",");
@@ -595,6 +644,58 @@ namespace E
             }
 
             return str?.ToLowerInvariant();
+        }
+
+        /// <summary>
+        /// 忽略已存在的 EntityTypeConfiguration 校验函数
+        /// [The existing EntityTypeConfiguration validation function is ignored]
+        /// </summary>
+        /// <typeparam name="TDbContext"></typeparam>
+        /// <param name="property"></param>
+        /// <returns></returns>
+        private static bool IgnoreExistEntityTypeConfigurations<TDbContext>(this PropertyInfo property)
+            where TDbContext : DbContext
+        {
+            if (EntityCfgTypes == null)
+            {
+                EntityCfgTypes = typeof(TDbContext).Assembly.GetTypes()
+                  .Where(t =>
+                  {
+                      var implementedInterface = t.GetInterface(IEntityTypeConfigurationTypeStr);
+                      return implementedInterface != null;
+                  })
+                  .ToList();
+
+            }
+
+            return EntityCfgTypes.Exists(o =>
+                         o.GetInterface(IEntityTypeConfigurationTypeStr).GetDbSetOrDbQueryTypeStr() == property.GetDbSetOrDbQueryTypeStr());
+        }
+
+        /// <summary>
+        /// 忽略已存在的 QueryTypeConfiguration 校验函数
+        /// [The existing QueryTypeConfiguration validation function is ignored]
+        /// </summary>
+        /// <typeparam name="TDbContext"></typeparam>
+        /// <param name="property"></param>
+        /// <returns></returns>
+        private static bool IgnoreExistQueryTypeConfigurations<TDbContext>(this PropertyInfo property)
+            where TDbContext : DbContext
+        {
+            if (QueryCfgTypes == null)
+            {
+                QueryCfgTypes = typeof(TDbContext).Assembly.GetTypes()
+                  .Where(t =>
+                  {
+                      var implementedInterface = t.GetInterface(IQueryTypeConfigurationTypeStr);
+                      return implementedInterface != null;
+                  })
+                  .ToList();
+
+            }
+
+            return QueryCfgTypes.Exists(o =>
+                         o.GetInterface(IQueryTypeConfigurationTypeStr).GetDbSetOrDbQueryTypeStr() == property.GetDbSetOrDbQueryTypeStr());
         }
 
         #endregion

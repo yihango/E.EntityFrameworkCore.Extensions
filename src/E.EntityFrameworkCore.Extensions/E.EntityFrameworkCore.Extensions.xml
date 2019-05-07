@@ -76,6 +76,16 @@
             [Column name maximum length, default 30]
             </summary>
         </member>
+        <member name="F:E.EntityFrameworkCoreTableViewExtensions.IEntityTypeConfigurationTypeStr">
+            <summary>
+            IEntityTypeConfiguration 接口字符串
+            </summary>
+        </member>
+        <member name="F:E.EntityFrameworkCoreTableViewExtensions.IQueryTypeConfigurationTypeStr">
+            <summary>
+            IQueryTypeConfiguration 接口字符串
+            </summary>
+        </member>
         <member name="P:E.EntityFrameworkCoreTableViewExtensions.TableAttr">
             <summary>
             表特性类型
@@ -106,22 +116,34 @@
             [String length attribute type]
             </summary>
         </member>
-        <member name="M:E.EntityFrameworkCoreTableViewExtensions.SetAllDbSetTableNameAndColumnName``1(Microsoft.EntityFrameworkCore.ModelBuilder)">
+        <member name="P:E.EntityFrameworkCoreTableViewExtensions.EntityCfgTypes">
+            <summary>
+            实现 IEntityTypeConfiguration 类型的集合
+            </summary>
+        </member>
+        <member name="P:E.EntityFrameworkCoreTableViewExtensions.QueryCfgTypes">
+            <summary>
+            实现 IQueryTypeConfiguration 类型的集合
+            </summary>
+        </member>
+        <member name="M:E.EntityFrameworkCoreTableViewExtensions.SetAllDbSetTableNameAndColumnName``1(Microsoft.EntityFrameworkCore.ModelBuilder,System.Boolean)">
             <summary>
             设置DbContext的所有DbSet 对应的 表名和列名
             [Set the table and column names for all dbsets of the DbContext]
             </summary>
-            <typeparam name="DbContext"></typeparam>
+            <typeparam name="TDbContext"></typeparam>
             <param name="builder"></param>
+            <param name="ignoreExistEntityTypeConfigurations"></param>
             <returns></returns>
         </member>
-        <member name="M:E.EntityFrameworkCoreTableViewExtensions.SetAllDbQueryViewNameAndColumnName``1(Microsoft.EntityFrameworkCore.ModelBuilder)">
+        <member name="M:E.EntityFrameworkCoreTableViewExtensions.SetAllDbQueryViewNameAndColumnName``1(Microsoft.EntityFrameworkCore.ModelBuilder,System.Boolean)">
             <summary>
             设置DbContext的所有DbQuery  对应的 视图名和列名
             [Set the view name and column name for all dbqueries of the DbContext]
             </summary>
-            <typeparam name="DbContext"></typeparam>
+            <typeparam name="TDbContext"></typeparam>
             <param name="builder"></param>
+            <param name="ignoreExistQueryTypeConfigurations"></param>
             <returns></returns>
         </member>
         <member name="M:E.EntityFrameworkCoreTableViewExtensions.SetTableNameAndAllCloumName(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder,System.String,System.String)">
@@ -246,18 +268,26 @@
             <param name="type"></param>
             <returns></returns>
         </member>
-        <member name="M:E.EntityFrameworkCoreTableViewExtensions.GetDbSetTypeStr(System.Reflection.PropertyInfo)">
+        <member name="M:E.EntityFrameworkCoreTableViewExtensions.GetDbSetOrDbQueryTypeStr(System.Type)">
             <summary>
-            获取DbSet类型字符串
+            获取 DbSet 或 DbQuery 类型字符串
             [Gets the DbSet type string]
             </summary>
             <param name="property"></param>
             <returns></returns>
         </member>
-        <member name="M:E.EntityFrameworkCoreTableViewExtensions.GetDbQueryType(System.Reflection.PropertyInfo)">
+        <member name="M:E.EntityFrameworkCoreTableViewExtensions.GetDbSetOrDbQueryTypeStr(System.Reflection.PropertyInfo)">
             <summary>
-            获取DbQuery Type
-            [Get DbQuery Type]
+            获取 DbSet 或 DbQuery 类型字符串
+            [Get the DbSet or DbQuery type string]
+            </summary>
+            <param name="property"></param>
+            <returns></returns>
+        </member>
+        <member name="M:E.EntityFrameworkCoreTableViewExtensions.GetDbSetOrDbQueryType(System.Reflection.PropertyInfo)">
+            <summary>
+            获取 DbSet 或 DbQuery 类型
+            [Get the DbSet or DbQuery type]
             </summary>
             <param name="property"></param>
             <returns></returns>
@@ -269,6 +299,24 @@
             </summary>
             <param name="str"></param>
             <param name="isColum"></param>
+            <returns></returns>
+        </member>
+        <member name="M:E.EntityFrameworkCoreTableViewExtensions.IgnoreExistEntityTypeConfigurations``1(System.Reflection.PropertyInfo)">
+            <summary>
+            忽略已存在的 EntityTypeConfiguration 校验函数
+            [The existing EntityTypeConfiguration validation function is ignored]
+            </summary>
+            <typeparam name="TDbContext"></typeparam>
+            <param name="property"></param>
+            <returns></returns>
+        </member>
+        <member name="M:E.EntityFrameworkCoreTableViewExtensions.IgnoreExistQueryTypeConfigurations``1(System.Reflection.PropertyInfo)">
+            <summary>
+            忽略已存在的 QueryTypeConfiguration 校验函数
+            [The existing QueryTypeConfiguration validation function is ignored]
+            </summary>
+            <typeparam name="TDbContext"></typeparam>
+            <param name="property"></param>
             <returns></returns>
         </member>
     </members>
