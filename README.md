@@ -15,6 +15,7 @@ EntityFrameworkCore 的扩展库
 * 自定义 DbQuery 校验处理函数
 * 自定义 Column(Field) 校验处理函数
 * 自定义列名长度,自动进行裁剪
+* 自动跳过处理 DbContext 程序集中已实现的 IEntityTypeConfiguration 和 IQueryTypeConfiguration
 
 
 ## 基本用法
@@ -50,8 +51,9 @@ EntityFrameworkCore 的扩展库
   E.EntityFrameworkCoreTableViewExtensions.DbMapTypes.Add("System.Int32[]");
   
   // 将名为 YourContext 中的所有 DbSet 和 DbQuery 的表名、视图名、列名转换为小写
-  modelBuilder.SetAllDbSetTableNameAndColumnName<YourContext>();
-  modelBuilder.SetAllDbQueryViewNameAndColumnName<YourContext>();
+  // 参数位 true,则 自动跳过处理 DbContext 程序集中已实现的 IEntityTypeConfiguration 和 IQueryTypeConfiguration
+  modelBuilder.SetAllDbSetTableNameAndColumnName<YourContext>(/* true */);
+  modelBuilder.SetAllDbQueryViewNameAndColumnName<YourContext>(/* true */);
 
 ```
 
@@ -71,8 +73,9 @@ EntityFrameworkCore 的扩展库
   E.EntityFrameworkCoreTableViewExtensions.ColumnNameMaxLength = 30;
   
   // 将名为 YourContext 中的所有 DbSet 和 DbQuery 的表名、视图名、列名转换为大写
-  modelBuilder.SetAllDbSetTableNameAndColumnName<YourContext>();
-  modelBuilder.SetAllDbQueryViewNameAndColumnName<YourContext>();
+  // 参数位 true,则 自动跳过处理 DbContext 程序集中已实现的 IEntityTypeConfiguration 和 IQueryTypeConfiguration
+  modelBuilder.SetAllDbSetTableNameAndColumnName<YourContext>(/* true */);
+  modelBuilder.SetAllDbQueryViewNameAndColumnName<YourContext>(/* true */);
 
 ```
 
