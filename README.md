@@ -14,6 +14,7 @@ EntityFrameworkCore 的扩展库
 * 自定义 DbSet 校验处理函数
 * 自定义 DbQuery 校验处理函数
 * 自定义 Column(Field) 校验处理函数
+* 自定义列名长度,自动进行裁剪
 
 
 ## 基本用法
