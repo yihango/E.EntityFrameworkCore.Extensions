@@ -28,7 +28,7 @@
             [The length of the default string used (default 512)]
             </summary>
         </member>
-        <member name="P:E.EntityFrameworkCoreTableViewExtensions.PropertyCheck">
+        <member name="P:E.EntityFrameworkCoreTableViewExtensions.ColumnCheck">
             <summary>
             外部自定义属性映射到字段检查方法
             [External custom attributes map to field inspection methods]
@@ -50,6 +50,30 @@
             <summary>
             DbQuery 类型字符串(谨慎修改)
             [DbQuery type string (carefully modified)]
+            </summary>
+        </member>
+        <member name="P:E.EntityFrameworkCoreTableViewExtensions.DbSetCheck">
+            <summary>
+            外部自定义 DbSet 是否处理的检查方法
+            [External custom DbSet whether to handle the check method]
+            </summary>
+        </member>
+        <member name="P:E.EntityFrameworkCoreTableViewExtensions.DbQueryCheck">
+            <summary>
+            外部自定义 DbQuery 是否处理的检查方法
+            [External custom DbQuery whether to handle the check method]
+            </summary>
+        </member>
+        <member name="P:E.EntityFrameworkCoreTableViewExtensions.UseColumnNameMaxLength">
+            <summary>
+            启用列名最大长度限制,默认为fasle
+            [Enables the maximum length limit for column names, which is fasle by default]
+            </summary>
+        </member>
+        <member name="P:E.EntityFrameworkCoreTableViewExtensions.ColumnNameMaxLength">
+            <summary>
+            列名最大长度,默认30
+            [Column name maximum length, default 30]
             </summary>
         </member>
         <member name="P:E.EntityFrameworkCoreTableViewExtensions.TableAttr">
@@ -238,12 +262,13 @@
             <param name="property"></param>
             <returns></returns>
         </member>
-        <member name="M:E.EntityFrameworkCoreTableViewExtensions.C(System.String)">
+        <member name="M:E.EntityFrameworkCoreTableViewExtensions.C(System.String,System.Boolean)">
             <summary>
             转换字符串大小写
             [Converts string case]
             </summary>
             <param name="str"></param>
+            <param name="isColum"></param>
             <returns></returns>
         </member>
     </members>

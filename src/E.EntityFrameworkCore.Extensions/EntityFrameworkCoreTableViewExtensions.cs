@@ -81,6 +81,16 @@ namespace E
         /// [External custom DbQuery whether to handle the check method]
         /// </summary>
         public static Func<PropertyInfo, bool> DbQueryCheck { get; set; }
+        /// <summary>
+        /// 启用列名最大长度限制,默认为fasle
+        /// [Enables the maximum length limit for column names, which is fasle by default]
+        /// </summary>
+        public static bool UseColumnNameMaxLength { get; set; }
+        /// <summary>
+        /// 列名最大长度,默认30
+        /// [Column name maximum length, default 30]
+        /// </summary>
+        public static int ColumnNameMaxLength { get; set; } = 30;
 
         #endregion
 
@@ -272,7 +282,7 @@ namespace E
 
                 // 设置字段列名
                 var propertyBuilder = builder.Property(prop.PropertyType, prop.Name);
-                propertyBuilder.SetColumnName();
+                propertyBuilder.SetColumnName(prop.Name);
 
                 if (UseDefaultStringMaxLength && prop.CheckPropIsStringAndNoSetMaxLength())
                 {
@@ -358,7 +368,7 @@ namespace E
 
                 // 设置字段列名
                 var propertyBuilder = builder.Property(prop.PropertyType, prop.Name);
-                propertyBuilder.SetColumnName();
+                propertyBuilder.SetColumnName(prop.Name);
 
                 if (UseDefaultStringMaxLength && prop.CheckPropIsStringAndNoSetMaxLength())
                 {
@@ -393,17 +403,17 @@ namespace E
         {
             if (!string.IsNullOrWhiteSpace(columnName))
             {
-                return property.HasColumnName(C(columnName));
+                return property.HasColumnName(C(columnName, true));
             }
 
             var columnAttr = property.Metadata.ClrType.GetColumnAttribute();
             if (columnAttr != null && !string.IsNullOrWhiteSpace(columnAttr.Name))
             {
-                return property.HasColumnName(C(columnAttr.Name));
+                return property.HasColumnName(C(columnAttr.Name, true));
             }
 
             var fieldName = Regex.Match(property.Metadata.FieldInfo.Name, "<(.*?)>").Groups[1].Value;
-            return property.HasColumnName(C(fieldName));
+            return property.HasColumnName(C(fieldName, true));
         }
 
         #endregion
@@ -570,9 +580,15 @@ namespace E
         /// [Converts string case]
         /// </summary>
         /// <param name="str"></param>
+        /// <param name="isColum"></param>
         /// <returns></returns>
-        private static string C(string str)
+        private static string C(string str, bool isColum = false)
         {
+            if (isColum && !string.IsNullOrWhiteSpace(str) && str.Length > ColumnNameMaxLength)
+            {
+                str = str.Substring(0, ColumnNameMaxLength);
+            }
+
             if (UseUpperCase)
             {
                 return str?.ToUpperInvariant();
