@@ -71,6 +71,17 @@ namespace E
         /// </summary>
         public static string DbQueryTypeStr { get; set; } = "Microsoft.EntityFrameworkCore.DbQuery";
 
+        /// <summary>
+        /// 外部自定义 DbSet 是否处理的检查方法
+        /// [External custom DbSet whether to handle the check method]
+        /// </summary>
+        public static Func<PropertyInfo, bool> DbSetCheck { get; set; }
+        /// <summary>
+        /// 外部自定义 DbQuery 是否处理的检查方法
+        /// [External custom DbQuery whether to handle the check method]
+        /// </summary>
+        public static Func<PropertyInfo, bool> DbQueryCheck { get; set; }
+
         #endregion
 
 
@@ -131,6 +142,11 @@ namespace E
 
             foreach (var dbSet in allDbSet)
             {
+                if (DbSetCheck != null && !DbSetCheck(dbSet))
+                {
+                    continue;
+                }
+
                 dbSetName = dbSet.Name;
                 dbSetTypeStr = dbSet.GetDbSetTypeStr();
 
@@ -166,6 +182,11 @@ namespace E
 
             foreach (var dbQuery in allDbQuery)
             {
+                if (DbQueryCheck != null && !DbQueryCheck(dbQuery))
+                {
+                    continue;
+                }
+
                 dbQueryName = dbQuery.Name;
                 dbQueryType = dbQuery.GetDbQueryType();
 
