@@ -23,6 +23,30 @@ namespace TestWebApp.Database
             base.OnModelCreating(modelBuilder);
 
 
+            #region 自定义校验器
+
+            //// DbSet Check
+            //E.EntityFrameworkCoreTableViewExtensions.DbSetCheck = (info) =>
+            //{
+            //    // 你的校验逻辑
+            //    return true;// or false
+            //};
+            //// DbQuery Check
+            //E.EntityFrameworkCoreTableViewExtensions.DbQueryCheck = (info) =>
+            //{
+            //    // 你的校验逻辑
+            //    return true;// or false
+            //};
+            //// Column Chcek
+            //E.EntityFrameworkCoreTableViewExtensions.ColumnCheck = (info) =>
+            //{
+            //    // 你的校验逻辑
+            //    return true;// or false
+            //}; 
+
+            #endregion
+
+
             // 配置... [configurations...]
 
             #region 如果使用 postgre_sql  [if use postgre_sql ]
