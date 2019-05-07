@@ -11,8 +11,12 @@ EntityFrameworkCore 的扩展库
 **目前已经实现的功能**：
 * PostgreSql DbSet和 DbQeruy 表名、视图名、列名自动处理为小写
 * Oracle DbSet 和 DbQuery 表名、视图名、列名自动处理为大写
+* 自定义 DbSet 校验处理函数
+* 自定义 DbQuery 校验处理函数
+* 自定义 Column(Field) 校验处理函数
 
-## 用法
+
+## 基本用法
 
 ### 1. 引入nuget包
 * dotnet cli
@@ -38,6 +42,7 @@ EntityFrameworkCore 的扩展库
   
   // 设置转大写为false
   E.EntityFrameworkCoreTableViewExtensions.UseUpperCase = false;
+  
   // 增加映射的字段类型字符串, 由于 PostgreSql 支持数据类型过于丰富,此处省略部分...
   E.EntityFrameworkCoreTableViewExtensions.DbMapTypes.Add("System.String[]");
   E.EntityFrameworkCoreTableViewExtensions.DbMapTypes.Add("System.Boolean[]");
@@ -66,4 +71,29 @@ EntityFrameworkCore 的扩展库
 
 ```
 
+## 自定义校验处理函数
+***以下代码均处于 OnModelCreating 函数中***
+```
+  // DbSet Check
+  E.EntityFrameworkCoreTableViewExtensions.DbSetCheck = (info) =>
+  {
+      // 你的校验逻辑
+      return true;// or false
+  };
+  
+  // DbQuery Check
+  E.EntityFrameworkCoreTableViewExtensions.DbQueryCheck = (info) =>
+  {
+      // 你的校验逻辑
+      return true;// or false
+  };
+  
+  // Column Chcek
+  E.EntityFrameworkCoreTableViewExtensions.ColumnCheck = (info) =>
+  {
+      // 你的校验逻辑
+      return true;// or false
+  };
+
+```
 
