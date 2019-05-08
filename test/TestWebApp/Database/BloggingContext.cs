@@ -13,6 +13,8 @@ namespace TestWebApp.Database
         public DbSet<Blog> Blogs { get; set; }
         public DbSet<Post> Posts { get; set; }
 
+        public DbQuery<TestView> TestView { get; set; }
+
         public BloggingContext(DbContextOptions<BloggingContext> options)
             : base(options)
         {
@@ -70,16 +72,16 @@ namespace TestWebApp.Database
             //E.EntityFrameworkCoreTableViewExtensions.UseDefaultStringMaxLength = true;
             //E.EntityFrameworkCoreTableViewExtensions.DefaultStringMaxLength = 256;
 
-            E.EntityFrameworkCoreTableViewExtensions.UseColumnNameMaxLength = true;
-            E.EntityFrameworkCoreTableViewExtensions.ColumnNameMaxLength = 30;
+            //E.EntityFrameworkCoreTableViewExtensions.UseColumnNameMaxLength = true;
+            //E.EntityFrameworkCoreTableViewExtensions.ColumnNameMaxLength = 30;
 
             #endregion
 
 
             #region 如果使用postgresql 或者 oracle  [if use postgre_sql or oracle]
 
-            modelBuilder.SetAllDbSetTableNameAndColumnName<BloggingContext>();
-            modelBuilder.SetAllDbQueryViewNameAndColumnName<BloggingContext>();
+            modelBuilder.SetAllDbSetTableNameAndColumnName<BloggingContext>(true);
+            modelBuilder.SetAllDbQueryViewNameAndColumnName<BloggingContext>(true);
 
             #endregion
 

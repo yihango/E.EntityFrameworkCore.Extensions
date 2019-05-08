@@ -195,11 +195,10 @@
             * 实体标记的 TableAttribute
             * 实体名称, schema 不设置
             </summary>
-            <typeparam name="TEntity"></typeparam>
-            <param name="builder">ModelBuiler</param>
-            <param name="viewName">表名</param>
-            <param name="schema">表schema</param>
-            <returns>ModelBuiler</returns>
+            <param name="builder"></param>
+            <param name="viewName"></param>
+            <param name="schema"></param>
+            <returns></returns>
         </member>
         <member name="M:E.EntityFrameworkCoreTableViewExtensions.SetAllColumnName(Microsoft.EntityFrameworkCore.Metadata.Builders.QueryTypeBuilder)">
             <summary>
@@ -273,7 +272,7 @@
             获取 DbSet 或 DbQuery 类型字符串
             [Gets the DbSet type string]
             </summary>
-            <param name="property"></param>
+            <param name="type"></param>
             <returns></returns>
         </member>
         <member name="M:E.EntityFrameworkCoreTableViewExtensions.GetDbSetOrDbQueryTypeStr(System.Reflection.PropertyInfo)">

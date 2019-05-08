@@ -5,6 +5,13 @@ using System.Threading.Tasks;
 
 namespace TestWebApp.Database.Models
 {
+    public enum Test
+    {
+        A,
+        B,
+        C
+    }
+
     public class Blog
     {
         public int Id { get; set; }
@@ -40,17 +47,26 @@ namespace TestWebApp.Database.Models
         public string String { get; set; }
         public string[] Strings { get; set; }
 
-        public ICollection<Post> Posts { get; set; }
+        public Test TestEnum { get; set; }
+
     }
 
     public class Post
     {
-        public int PostId { get; set; }
+        public int Id { get; set; }
         public string Title { get; set; }
         public string Content { get; set; }
-
         public int BlogId { get; set; }
-        public Blog Blog { get; set; }
+    }
+
+
+    public class TestView
+    {
+        public int Id { get; set; }
+
+        public string Name { get; set; }
+
+        public bool Enabled { get; set; }
     }
 
 }

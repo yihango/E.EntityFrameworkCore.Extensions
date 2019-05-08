@@ -614,7 +614,7 @@ namespace E
         public static Type GetDbSetOrDbQueryType(this PropertyInfo property)
         {
             var startIndex = property.PropertyType.FullName.IndexOf("[[") + 2;
-            var endIndex = property.PropertyType.FullName.IndexOf(",");
+            var endIndex = property.PropertyType.FullName.IndexOf("]]");
             var entityTypeStr = property.PropertyType.FullName.Substring(startIndex, endIndex - startIndex);
             return Type.GetType(entityTypeStr);
         }
