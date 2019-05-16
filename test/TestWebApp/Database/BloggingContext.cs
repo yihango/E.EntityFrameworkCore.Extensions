@@ -51,6 +51,11 @@ namespace TestWebApp.Database
 
             // 配置... [configurations...]
 
+            // 禁用 使用DbSet/DbQuery名称作为表名和视图名称,优先读Table标记,其次类名
+            E.EntityFrameworkCoreTableViewExtensions.UseDbSetNameToTableName = false;
+            E.EntityFrameworkCoreTableViewExtensions.UseDbQueryNameToViewName = false;
+
+
             #region 如果使用 postgre_sql  [if use postgre_sql ]
 
             E.EntityFrameworkCoreTableViewExtensions.UseUpperCase = false;

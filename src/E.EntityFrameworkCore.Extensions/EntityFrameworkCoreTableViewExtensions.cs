@@ -59,6 +59,7 @@ namespace E
             "System.Int16",
             "System.UInt16",
             "System.String",
+            "System.DateTime",
         };
         /// <summary>
         /// DbSet 类型字符串(谨慎修改)
@@ -99,6 +100,16 @@ namespace E
         /// IQueryTypeConfiguration 接口字符串
         /// </summary>
         public static string IQueryTypeConfigurationTypeStr = typeof(IQueryTypeConfiguration<>).FullName;
+
+        /// <summary>
+        /// 使用DbSet名称为数据库表名称
+        /// </summary>
+        public static bool UseDbSetNameToTableName { get; set; } = true;
+
+        /// <summary>
+        /// 使用DbQuery名称作为数据库视图名称
+        /// </summary>
+        public static bool UseDbQueryNameToViewName { get; set; } = true;
 
         #endregion
 
@@ -189,7 +200,9 @@ namespace E
 
                 builder.Entity(dbSetTypeStr, (entityTypeBuilder) =>
                 {
-                    entityTypeBuilder.SetTableNameAndAllCloumName(dbSetName);
+                    entityTypeBuilder.SetTableNameAndAllCloumName(
+                      UseDbSetNameToTableName ? dbSetName : null
+                      );
                 });
             }
 
@@ -236,7 +249,9 @@ namespace E
 
                 builder.Query(dbQueryType, (queryTypeBuilder) =>
                 {
-                    queryTypeBuilder.SetViewNameAndAllCloumName(dbQueryName);
+                    queryTypeBuilder.SetViewNameAndAllCloumName(
+                        UseDbQueryNameToViewName ? dbQueryName : null
+                      );
                 });
             }
 
@@ -487,7 +502,22 @@ namespace E
             }
 
             // 默认检查是否支持类型
-            return DbMapTypes.Exists(o => o == property.PropertyType.FullName);
+            foreach (var item in DbMapTypes)
+            {
+                // 普通类型
+                if (item == property.PropertyType.FullName)
+                {
+                    return true;
+                }
+
+                // 可空
+                if (property.PropertyType.FullName.StartsWith($"System.Nullable`1[[{item}, "))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         /// <summary>
