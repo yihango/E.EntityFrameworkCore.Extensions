@@ -16,6 +16,8 @@ EntityFrameworkCore 的扩展库
 * 自定义 Column(Field) 校验处理函数
 * 自定义列名长度,自动进行裁剪
 * 自动跳过处理 DbContext 程序集中已实现的 IEntityTypeConfiguration 和 IQueryTypeConfiguration
+* 增加是否使用 DbSet/DbQuery 名称作为 表名称/视图名称 选项
+* 增加字符串列设置默认数据长度 校验函数
 
 
 ## 基本用法
@@ -42,6 +44,10 @@ EntityFrameworkCore 的扩展库
 ```
   base.OnModelCreating(modelBuilder);
   
+  // 禁用 使用DbSet/DbQuery名称作为表名和视图名称,优先读Table标记,其次类名
+  E.EntityFrameworkCoreTableViewExtensions.UseDbSetNameToTableName = false;
+  E.EntityFrameworkCoreTableViewExtensions.UseDbQueryNameToViewName = false;
+  
   // 设置转大写为false
   E.EntityFrameworkCoreTableViewExtensions.UseUpperCase = false;
   
@@ -61,12 +67,22 @@ EntityFrameworkCore 的扩展库
 ```
   base.OnModelCreating(modelBuilder);
   
+  // 禁用 使用DbSet/DbQuery名称作为表名和视图名称,优先读Table标记,其次类名
+  E.EntityFrameworkCoreTableViewExtensions.UseDbSetNameToTableName = false;
+  E.EntityFrameworkCoreTableViewExtensions.UseDbQueryNameToViewName = false;
+  
   // 设置转大写为 true
   E.EntityFrameworkCoreTableViewExtensions.UseUpperCase = true;
   
   // 设置字段类型为字符串的默认长度(因为oracle限制字符串最大长度为2000),若字段标记 StringLength 则取 StringLength 长度
   E.EntityFrameworkCoreTableViewExtensions.UseDefaultStringMaxLength = true;
   E.EntityFrameworkCoreTableViewExtensions.DefaultStringMaxLength = 256;
+  // 自定义 字符串列数据长度 是否设置默认长度 校验函数
+  E.EntityFrameworkCoreTableViewExtensions.CheckUseDefaultStringMaxLength = (type, prop) =>
+  {
+      // 如果实体的命名空间为 TestWebApp.Database.Models 则设置长度
+      return type.Namespace.StartsWith("TestWebApp.Database.Models");
+  };
   
   // 启用限制列名长度,超出长度自动裁剪(因为oracle限制列名最大长度为30)
   E.EntityFrameworkCoreTableViewExtensions.UseColumnNameMaxLength = true;
