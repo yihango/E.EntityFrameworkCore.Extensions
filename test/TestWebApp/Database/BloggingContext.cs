@@ -74,11 +74,19 @@ namespace TestWebApp.Database
             #region 如果使用 oracle [if use oracle]
 
             //E.EntityFrameworkCoreTableViewExtensions.UseUpperCase = true;
-            //E.EntityFrameworkCoreTableViewExtensions.UseDefaultStringMaxLength = true;
-            //E.EntityFrameworkCoreTableViewExtensions.DefaultStringMaxLength = 256;
+
 
             //E.EntityFrameworkCoreTableViewExtensions.UseColumnNameMaxLength = true;
             //E.EntityFrameworkCoreTableViewExtensions.ColumnNameMaxLength = 30;
+
+            //E.EntityFrameworkCoreTableViewExtensions.UseDefaultStringMaxLength = true;
+            //E.EntityFrameworkCoreTableViewExtensions.DefaultStringMaxLength = 256;
+            // 自定义 字符串列数据长度 是否设置默认长度 校验函数
+            //E.EntityFrameworkCoreTableViewExtensions.CheckUseDefaultStringMaxLength = (type, prop) =>
+            //{
+            //    // 如果实体的命名空间为 TestWebApp.Database.Models 则设置长度
+            //    return type.Namespace.StartsWith("TestWebApp.Database.Models");
+            //};
 
             #endregion
 
