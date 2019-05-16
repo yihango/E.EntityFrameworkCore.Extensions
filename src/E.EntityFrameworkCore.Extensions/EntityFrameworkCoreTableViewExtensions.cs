@@ -434,8 +434,19 @@ namespace E
                 var propertyBuilder = builder.Property(prop.PropertyType, prop.Name);
                 propertyBuilder.SetColumnName(prop.Name);
 
+                // 设置string类型列数据长度
                 if (UseDefaultStringMaxLength && prop.CheckPropIsStringAndNoSetMaxLength())
                 {
+                    // 如果自定义了检查函数,那么优先判断检查函数
+                    if (
+                        CheckUseDefaultStringMaxLength != null
+                        && !CheckUseDefaultStringMaxLength(builder.Metadata.ClrType, prop)
+                       )
+                    {
+                        // 不通过检查,跳过设置默认数据长度
+                        continue;
+                    }
+
                     // 设置字符串列默认长度
                     propertyBuilder.HasMaxLength(DefaultStringMaxLength);
                 }
