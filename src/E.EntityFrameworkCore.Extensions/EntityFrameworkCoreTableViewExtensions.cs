@@ -94,11 +94,6 @@ namespace E
         public static bool UseDbSetNameToTableName { get; set; } = true;
 
         /// <summary>
-        /// 使用DbQuery名称作为数据库视图名称
-        /// </summary>
-        public static bool UseDbQueryNameToViewName { get; set; } = true;
-
-        /// <summary>
         /// 外部自定义 设置字符串类型列数据长度 是否处理的检查方法
         /// </summary>
         public static Func<Type, PropertyInfo, CheckUseDefaultStringMaxLenghtResult> CheckUseDefaultStringMaxLength { get; set; }
@@ -152,7 +147,7 @@ namespace E
         /// </summary>
         /// <typeparam name="TDbContext"></typeparam>
         /// <param name="builder"></param>
-        /// <param name="ignoreExistEntityTypeConfigurations"></param>
+        /// <param name="ignoreExistEntityTypeConfigurations">自动跳过处理 DbContext 程序集中已实现的 IEntityTypeConfiguration的DbSet</param>
         /// <returns></returns>
         public static ModelBuilder CaseAllDbSetNameAndColumnName<TDbContext>(this ModelBuilder builder,
             bool ignoreExistEntityTypeConfigurations = false)
@@ -189,19 +184,9 @@ namespace E
 
                 builder.Entity(dbSetTypeStr, (entityTypeBuilder) =>
                 {
-                    // 视图
-                    if (entityTypeBuilder.Metadata.ClrType.GetInterface("IXstDbView") != null)
-                    {
-                        entityTypeBuilder.CaseViewNameAndAllCloumName(
-                            UseDbQueryNameToViewName ? dbSetName : null
-                        );
-                    }
-                    else // 表
-                    {
-                        entityTypeBuilder.CaseTableNameAndAllCloumName(
-                            UseDbSetNameToTableName ? dbSetName : null
-                        );
-                    }
+                    entityTypeBuilder.CaseTableNameAndAllCloumName(
+                             UseDbSetNameToTableName ? dbSetName : null
+                         );
                 });
             }
 
@@ -265,71 +250,6 @@ namespace E
             }
             //return RelationalEntityTypeBuilderExtensions.ToTable(builder, C(builder.Metadata.ClrType.Name));
             return builder.ToTable(C(builder.Metadata.ClrType.Name));
-        }
-
-        #endregion
-
-
-        #region 公开 视图扩展函数 QueryTypeBuilder [Public view extension function QueryTypeBuilder]
-
-        /// <summary>
-        /// 自动将视图名和列名转换大小写,部分特殊列需要手动处理
-        /// [Automatically converts view and column names to case, and some special columns need to be handled manually]
-        /// </summary>
-        /// <param name="builder"></param>
-        /// <param name="viewName"></param>
-        /// <param name="schema"></param>
-        /// <returns></returns>
-        public static EntityTypeBuilder CaseViewNameAndAllCloumName(
-          this EntityTypeBuilder builder, string viewName = null, string schema = null)
-        {
-            builder.CaseViewName(viewName, schema);
-
-            return builder.CaseAllColumnName();
-        }
-
-
-        /// <summary>
-        /// 设置视图名称和Schema [Set the view name and Schema]
-        /// 优先级:
-        /// * 传入的 tableName 和 schema
-        /// * 实体标记的 TableAttribute
-        /// * 实体名称, schema 不设置
-        /// </summary>
-        /// <param name="builder"></param>
-        /// <param name="viewName"></param>
-        /// <param name="schema"></param>
-        /// <returns></returns>
-        public static EntityTypeBuilder CaseViewName(
-            this EntityTypeBuilder builder,
-            string viewName = null,
-            string schema = null)
-        {
-            if (!string.IsNullOrWhiteSpace(viewName))
-            {
-                //return RelationalEntityTypeBuilderExtensions.ToView(builder, C(viewName), C(schema));
-                return builder.ToView(C(viewName), C(schema));
-            }
-
-            var tableAttr = builder.Metadata.ClrType.GetTableAttribute();
-            if (tableAttr != null)
-            {
-                //return RelationalEntityTypeBuilderExtensions.ToView(builder, C(tableAttr.Name), C(tableAttr.Schema));
-                return builder.ToView(C(tableAttr.Name), C(tableAttr.Schema));
-            }
-            //return RelationalEntityTypeBuilderExtensions.ToView(builder, C(builder.Metadata.ClrType.Name));
-            return builder.ToView(C(builder.Metadata.ClrType.Name));
-        }
-
-        /// <summary>
-        /// 转换视图名称
-        /// </summary>
-        /// <param name="entityTypeBuilder"></param>
-        /// <param name="str"></param>
-        public static void CaseViewName(this EntityTypeBuilder entityTypeBuilder, string str)
-        {
-            entityTypeBuilder.HasNoKey();
-            entityTypeBuilder.ToView(C(str));
         }
 
         #endregion
