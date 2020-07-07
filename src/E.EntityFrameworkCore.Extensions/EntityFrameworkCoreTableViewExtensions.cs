@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-
+using System.Linq.Expressions;
 
 namespace E
 {
@@ -20,10 +20,10 @@ namespace E
         #region 可自定义配置 [Customizable configuration]
 
         /// <summary>
-        /// 启用转大写,默认为false,默认转为小写
+        /// 列名大小写转换类型,默认为不转换
         /// [Enables uppercase, false by default, and lowercase by default]
         /// </summary>
-        public static bool UseUpperCase { get; set; }
+        public static ColumnNameCaseType CaseType { get; private set; } = ColumnNameCaseType.Default;
         /// <summary>
         /// 启用设置字符串默认长度,默认为 false
         /// [Sets the default length of the string to false by default]
@@ -60,28 +60,19 @@ namespace E
             "System.UInt16",
             "System.String",
             "System.DateTime",
+            "System.Guid",
         };
         /// <summary>
         /// DbSet 类型字符串(谨慎修改)
         /// [DbSet type string (carefully modified)]
         /// </summary>
         public static string DbSetTypeStr { get; set; } = "Microsoft.EntityFrameworkCore.DbSet";
-        /// <summary>
-        /// DbQuery 类型字符串(谨慎修改)
-        /// [DbQuery type string (carefully modified)]
-        /// </summary>
-        public static string DbQueryTypeStr { get; set; } = "Microsoft.EntityFrameworkCore.DbQuery";
 
         /// <summary>
         /// 外部自定义 DbSet 是否处理的检查方法
         /// [External custom DbSet whether to handle the check method]
         /// </summary>
         public static Func<PropertyInfo, bool> DbSetCheck { get; set; }
-        /// <summary>
-        /// 外部自定义 DbQuery 是否处理的检查方法
-        /// [External custom DbQuery whether to handle the check method]
-        /// </summary>
-        public static Func<PropertyInfo, bool> DbQueryCheck { get; set; }
         /// <summary>
         /// 启用列名最大长度限制,默认为fasle
         /// [Enables the maximum length limit for column names, which is fasle by default]
@@ -95,11 +86,7 @@ namespace E
         /// <summary>
         /// IEntityTypeConfiguration 接口字符串
         /// </summary>
-        public static string IEntityTypeConfigurationTypeStr = typeof(IEntityTypeConfiguration<>).FullName;
-        /// <summary>
-        /// IQueryTypeConfiguration 接口字符串
-        /// </summary>
-        public static string IQueryTypeConfigurationTypeStr = typeof(IQueryTypeConfiguration<>).FullName;
+        public static string IEntityTypeConfigurationTypeStr { get; set; } = typeof(IEntityTypeConfiguration<>).FullName;
 
         /// <summary>
         /// 使用DbSet名称为数据库表名称
@@ -114,7 +101,7 @@ namespace E
         /// <summary>
         /// 外部自定义 设置字符串类型列数据长度 是否处理的检查方法
         /// </summary>
-        public static Func<Type, PropertyInfo, bool> CheckUseDefaultStringMaxLength { get; set; }
+        public static Func<Type, PropertyInfo, CheckUseDefaultStringMaxLenghtResult> CheckUseDefaultStringMaxLength { get; set; }
 
         #endregion
 
@@ -141,6 +128,7 @@ namespace E
         /// [String type]
         /// </summary>
         static Type StringType { get; set; } = typeof(string);
+
         /// <summary>
         /// 字符串长度特性类型
         /// [String length attribute type]
@@ -151,10 +139,6 @@ namespace E
         /// 实现 IEntityTypeConfiguration 类型的集合
         /// </summary>
         static List<Type> EntityCfgTypes { get; set; }
-        /// <summary>
-        /// 实现 IQueryTypeConfiguration 类型的集合
-        /// </summary>
-        static List<Type> QueryCfgTypes { get; set; }
 
         #endregion
 
@@ -170,7 +154,7 @@ namespace E
         /// <param name="builder"></param>
         /// <param name="ignoreExistEntityTypeConfigurations"></param>
         /// <returns></returns>
-        public static ModelBuilder SetAllDbSetTableNameAndColumnName<TDbContext>(this ModelBuilder builder,
+        public static ModelBuilder CaseAllDbSetNameAndColumnName<TDbContext>(this ModelBuilder builder,
             bool ignoreExistEntityTypeConfigurations = false)
             where TDbContext : DbContext
         {
@@ -205,58 +189,19 @@ namespace E
 
                 builder.Entity(dbSetTypeStr, (entityTypeBuilder) =>
                 {
-                    entityTypeBuilder.SetTableNameAndAllCloumName(
-                      UseDbSetNameToTableName ? dbSetName : null
-                      );
-                });
-            }
-
-            return builder;
-        }
-
-        /// <summary>
-        /// 设置DbContext的所有DbQuery  对应的 视图名和列名
-        /// [Set the view name and column name for all dbqueries of the DbContext]
-        /// </summary>
-        /// <typeparam name="TDbContext"></typeparam>
-        /// <param name="builder"></param>
-        /// <param name="ignoreExistQueryTypeConfigurations"></param>
-        /// <returns></returns>
-        public static ModelBuilder SetAllDbQueryViewNameAndColumnName<TDbContext>(this ModelBuilder builder,
-            bool ignoreExistQueryTypeConfigurations = false)
-            where TDbContext : DbContext
-        {
-            var properties = typeof(TDbContext).GetProperties();
-            var allDbQuery = properties.Where(o => o.PropertyType.FullName.StartsWith(DbQueryTypeStr)).ToList();
-
-            if (allDbQuery == null || allDbQuery.Count == 0)
-            {
-                return builder;
-            }
-
-            var dbQueryName = string.Empty;
-            Type dbQueryType = null;
-
-            foreach (var dbQuery in allDbQuery)
-            {
-                if (ignoreExistQueryTypeConfigurations && dbQuery.IgnoreExistQueryTypeConfigurations<TDbContext>())
-                {
-                    continue;
-                }
-
-                if (DbQueryCheck != null && !DbQueryCheck(dbQuery))
-                {
-                    continue;
-                }
-
-                dbQueryName = dbQuery.Name;
-                dbQueryType = dbQuery.GetDbSetOrDbQueryType();
-
-                builder.Query(dbQueryType, (queryTypeBuilder) =>
-                {
-                    queryTypeBuilder.SetViewNameAndAllCloumName(
-                        UseDbQueryNameToViewName ? dbQueryName : null
-                      );
+                    // 视图
+                    if (entityTypeBuilder.Metadata.ClrType.GetInterface("IXstDbView") != null)
+                    {
+                        entityTypeBuilder.CaseViewNameAndAllCloumName(
+                            UseDbQueryNameToViewName ? dbSetName : null
+                        );
+                    }
+                    else // 表
+                    {
+                        entityTypeBuilder.CaseTableNameAndAllCloumName(
+                            UseDbSetNameToTableName ? dbSetName : null
+                        );
+                    }
                 });
             }
 
@@ -276,12 +221,12 @@ namespace E
         /// <param name="tableName"></param>
         /// <param name="schema"></param>
         /// <returns></returns>
-        public static EntityTypeBuilder SetTableNameAndAllCloumName(
+        public static EntityTypeBuilder CaseTableNameAndAllCloumName(
           this EntityTypeBuilder builder, string tableName = null, string schema = null)
         {
-            builder.SetTableName(tableName, schema);
+            builder.CaseTableName(tableName, schema);
 
-            return builder.SetAllColumnName();
+            return builder.CaseAllColumnName();
         }
 
 
@@ -296,67 +241,30 @@ namespace E
         /// <param name="tableName"></param>
         /// <param name="schema"></param>
         /// <returns></returns>
-        public static EntityTypeBuilder SetTableName(
+        public static EntityTypeBuilder CaseTableName(
             this EntityTypeBuilder builder,
             string tableName = null,
             string schema = null)
         {
+            if (builder.Metadata.BaseType != null)
+            {
+                return builder;
+            }
+
             if (!string.IsNullOrWhiteSpace(tableName))
             {
-                return RelationalEntityTypeBuilderExtensions.ToTable(builder, C(tableName), C(schema));
+                //return RelationalEntityTypeBuilderExtensions.ToTable(builder, C(tableName), C(schema));
+                return builder.ToTable(C(tableName), C(schema));
             }
 
             var tableAttr = builder.Metadata.ClrType.GetTableAttribute();
             if (tableAttr != null)
             {
-                return RelationalEntityTypeBuilderExtensions.ToTable(builder, C(tableAttr.Name), C(tableAttr.Schema));
+                //return RelationalEntityTypeBuilderExtensions.ToTable(builder, C(tableAttr.Name), C(tableAttr.Schema));
+                return builder.ToTable(C(tableAttr.Name), C(tableAttr.Schema));
             }
-            return RelationalEntityTypeBuilderExtensions.ToTable(builder, C(builder.Metadata.ClrType.Name));
-        }
-
-        /// <summary>
-        /// 设置所有列名,部分特殊列需要手动处理
-        /// [Set all column names. Some special columns need to be handled manually]
-        /// </summary>
-        /// <param name="builder"></param>
-        /// <returns></returns>
-        public static EntityTypeBuilder SetAllColumnName(this EntityTypeBuilder builder)
-        {
-            var entityProps = builder.Metadata.ClrType.GetProperties();
-
-            // 字段
-            var cloumnName = string.Empty;
-
-            foreach (var prop in entityProps)
-            {
-                if (!prop.CheckPropIsColumn())
-                {
-                    continue;
-                }
-
-                // 设置字段列名
-                var propertyBuilder = builder.Property(prop.PropertyType, prop.Name);
-                propertyBuilder.SetColumnName(prop.Name);
-
-                // 设置string类型列数据长度
-                if (UseDefaultStringMaxLength && prop.CheckPropIsStringAndNoSetMaxLength())
-                {
-                    // 如果自定义了检查函数,那么优先判断检查函数
-                    if (
-                        CheckUseDefaultStringMaxLength != null
-                        && !CheckUseDefaultStringMaxLength(builder.Metadata.ClrType, prop)
-                       )
-                    {
-                        // 不通过检查,跳过设置默认数据长度
-                        continue;
-                    }
-
-                    // 设置字符串列默认长度
-                    propertyBuilder.HasMaxLength(DefaultStringMaxLength);
-                }
-            }
-
-            return builder;
+            //return RelationalEntityTypeBuilderExtensions.ToTable(builder, C(builder.Metadata.ClrType.Name));
+            return builder.ToTable(C(builder.Metadata.ClrType.Name));
         }
 
         #endregion
@@ -369,15 +277,15 @@ namespace E
         /// [Automatically converts view and column names to case, and some special columns need to be handled manually]
         /// </summary>
         /// <param name="builder"></param>
-        /// <param name="tableName"></param>
+        /// <param name="viewName"></param>
         /// <param name="schema"></param>
         /// <returns></returns>
-        public static QueryTypeBuilder SetViewNameAndAllCloumName(
-          this QueryTypeBuilder builder, string tableName = null, string schema = null)
+        public static EntityTypeBuilder CaseViewNameAndAllCloumName(
+          this EntityTypeBuilder builder, string viewName = null, string schema = null)
         {
-            builder.SetViewName(tableName, schema);
+            builder.CaseViewName(viewName, schema);
 
-            return builder.SetAllColumnName();
+            return builder.CaseAllColumnName();
         }
 
 
@@ -392,23 +300,43 @@ namespace E
         /// <param name="viewName"></param>
         /// <param name="schema"></param>
         /// <returns></returns>
-        public static QueryTypeBuilder SetViewName(
-            this QueryTypeBuilder builder,
+        public static EntityTypeBuilder CaseViewName(
+            this EntityTypeBuilder builder,
             string viewName = null,
             string schema = null)
         {
             if (!string.IsNullOrWhiteSpace(viewName))
             {
-                return RelationalQueryTypeBuilderExtensions.ToView(builder, C(viewName), C(schema));
+                //return RelationalEntityTypeBuilderExtensions.ToView(builder, C(viewName), C(schema));
+                return builder.ToView(C(viewName), C(schema));
             }
 
             var tableAttr = builder.Metadata.ClrType.GetTableAttribute();
             if (tableAttr != null)
             {
-                return RelationalQueryTypeBuilderExtensions.ToView(builder, C(tableAttr.Name), C(tableAttr.Schema));
+                //return RelationalEntityTypeBuilderExtensions.ToView(builder, C(tableAttr.Name), C(tableAttr.Schema));
+                return builder.ToView(C(tableAttr.Name), C(tableAttr.Schema));
             }
-            return RelationalQueryTypeBuilderExtensions.ToView(builder, C(builder.Metadata.ClrType.Name));
+            //return RelationalEntityTypeBuilderExtensions.ToView(builder, C(builder.Metadata.ClrType.Name));
+            return builder.ToView(C(builder.Metadata.ClrType.Name));
         }
+
+        /// <summary>
+        /// 转换视图名称
+        /// </summary>
+        /// <param name="entityTypeBuilder"></param>
+        /// <param name="str"></param>
+        public static void CaseViewName(this EntityTypeBuilder entityTypeBuilder, string str)
+        {
+            entityTypeBuilder.HasNoKey();
+            entityTypeBuilder.ToView(C(str));
+        }
+
+        #endregion
+
+
+        #region 公开 公共 设置列名函数
+
 
         /// <summary>
         /// 设置所有列名,部分特殊列需要手动处理
@@ -416,7 +344,7 @@ namespace E
         /// </summary>
         /// <param name="builder"></param>
         /// <returns></returns>
-        public static QueryTypeBuilder SetAllColumnName(this QueryTypeBuilder builder)
+        public static EntityTypeBuilder CaseAllColumnName(this EntityTypeBuilder builder)
         {
             var entityProps = builder.Metadata.ClrType.GetProperties();
 
@@ -432,20 +360,31 @@ namespace E
 
                 // 设置字段列名
                 var propertyBuilder = builder.Property(prop.PropertyType, prop.Name);
-                propertyBuilder.SetColumnName(prop.Name);
+                propertyBuilder.CaseColumnName(prop.Name);
+
 
                 // 设置string类型列数据长度
                 if (UseDefaultStringMaxLength && prop.CheckPropIsStringAndNoSetMaxLength())
                 {
                     // 如果自定义了检查函数,那么优先判断检查函数
-                    if (
-                        CheckUseDefaultStringMaxLength != null
-                        && !CheckUseDefaultStringMaxLength(builder.Metadata.ClrType, prop)
-                       )
+                    if (CheckUseDefaultStringMaxLength != null)
                     {
+                        var checkResult = CheckUseDefaultStringMaxLength(builder.Metadata.ClrType, prop);
                         // 不通过检查,跳过设置默认数据长度
-                        continue;
+                        if (!checkResult.Success)
+                        {
+                            continue;
+                        }
+
+                        // 额外配置的长度
+                        if (checkResult.MaxLength.HasValue && checkResult.MaxLength.Value > 0)
+                        {
+                            // 设置字符串列默认长度
+                            propertyBuilder.HasMaxLength(checkResult.MaxLength.Value);
+                            continue;
+                        }
                     }
+
 
                     // 设置字符串列默认长度
                     propertyBuilder.HasMaxLength(DefaultStringMaxLength);
@@ -455,40 +394,78 @@ namespace E
             return builder;
         }
 
-        #endregion
-
-
-        #region 公开 公共 设置列名函数
-
 
         /// <summary>
         /// 设置列名 [Set the column name]
         /// 优先级:
-        /// * 传入的 columnName
         /// * 字段标记的 ColumnAttribute 的 Name
+        /// * 传入的 columnName
         /// * fieldName
         /// </summary>
         /// <param name="property"></param>
         /// <param name="columnName"></param>
         /// <returns></returns>
-        public static PropertyBuilder SetColumnName(
+        public static PropertyBuilder CaseColumnName(
             this PropertyBuilder property,
             string columnName = null
             )
         {
-            if (!string.IsNullOrWhiteSpace(columnName))
+            if (property.Metadata.PropertyInfo == null)
             {
-                return property.HasColumnName(C(columnName, true));
+                return property.HasColumnName(C(property.Metadata.Name, true));
             }
 
-            var columnAttr = property.Metadata.ClrType.GetColumnAttribute();
+            var columnAttr = property.Metadata.PropertyInfo.GetColumnAttribute();
             if (columnAttr != null && !string.IsNullOrWhiteSpace(columnAttr.Name))
             {
                 return property.HasColumnName(C(columnAttr.Name, true));
             }
 
+            if (!string.IsNullOrWhiteSpace(columnName))
+            {
+                return property.HasColumnName(C(columnName, true));
+            }
+
             var fieldName = Regex.Match(property.Metadata.FieldInfo.Name, "<(.*?)>").Groups[1].Value;
             return property.HasColumnName(C(fieldName, true));
+        }
+
+        /// <summary>
+        /// 设置列名(自动转换为大小写)
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <typeparam name="TProperty"></typeparam>
+        /// <param name="builder">ModelBuiler</param>
+        /// <param name="propertyExpression">属性表达式</param>
+        /// <param name="columnName">指定列名(不填则使用属性名称)</param>
+        /// <returns></returns>
+        public static PropertyBuilder<TProperty> CaseColumnName<TEntity, TProperty>(
+          this EntityTypeBuilder<TEntity> builder,
+           Expression<Func<TEntity, TProperty>> propertyExpression,
+           string columnName = null)
+           where TEntity : class
+        {
+            return (
+                    builder.Property(propertyExpression).CaseColumnName(columnName)
+                ) as PropertyBuilder<TProperty>;
+        }
+
+        /// <summary>
+        /// 设置列名(自动转换为大小写)
+        /// </summary>
+        /// <typeparam name="TProperty"></typeparam>
+        /// <param name="builder">ModelBuiler</param>
+        /// <param name="fieldName">字段(属性名称)</param>
+        /// <param name="columnName">指定列名(不填则使用属性名称)</param>
+        /// <returns>Property Builder</returns>
+        public static PropertyBuilder<TProperty> CaseColumnName<TProperty>(
+            this EntityTypeBuilder builder,
+            string fieldName,
+            string columnName = null)
+        {
+            return (
+                   builder.Property<TProperty>(fieldName).CaseColumnName(columnName)
+               ) as PropertyBuilder<TProperty>;
         }
 
         #endregion
@@ -527,6 +504,7 @@ namespace E
             {
                 return true;
             }
+
 
             // 默认检查是否支持类型
             foreach (var item in DbMapTypes)
@@ -632,6 +610,24 @@ namespace E
         }
 
         /// <summary>
+        /// 获取 ColumnAttribute
+        /// [Get ColumnAttribute]
+        /// </summary>
+        /// <param name="propertyInfo"></param>
+        /// <returns></returns>
+        public static ColumnAttribute GetColumnAttribute(this PropertyInfo propertyInfo)
+        {
+            var columnAttr = propertyInfo.GetCustomAttributes(ColumnAttr, false);
+            if (columnAttr != null && columnAttr.Length >= 1)
+            {
+                var columnAttribute = (ColumnAttribute)columnAttr[0];
+                return columnAttribute;
+            }
+
+            return null;
+        }
+
+        /// <summary>
         /// 获取 DbSet 或 DbQuery 类型字符串
         /// [Gets the DbSet type string]
         /// </summary>
@@ -676,8 +672,49 @@ namespace E
             return Type.GetType(entityTypeStr);
         }
 
+        /// <summary>
+        /// 根据配置的转换类型转换大小写
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static string C(string str)
+        {
+            switch (CaseType)
+            {
+                case ColumnNameCaseType.Upper:
+                    return str?.ToUpperInvariant();
+                case ColumnNameCaseType.Lower:
+                    return str?.ToLowerInvariant();
+            }
+
+            return str;
+        }
+
         #endregion
 
+        #region 公开 设置转换类型
+
+        /// <summary>
+        /// 设置转换类型
+        /// </summary>
+        /// <param name="modelBuilder"></param>
+        /// <param name="caseType"></param>
+        public static void SetCaseType(this ModelBuilder modelBuilder, ColumnNameCaseType caseType)
+        {
+            CaseType = caseType;
+        }
+
+        /// <summary>
+        /// 设置转换类型
+        /// </summary>
+        /// <param name="modelBuilder"></param>
+        /// <param name="caseType"></param>
+        public static void SetCaseType(ColumnNameCaseType caseType)
+        {
+            CaseType = caseType;
+        }
+
+        #endregion
 
         #region 私有函数
 
@@ -690,17 +727,15 @@ namespace E
         /// <returns></returns>
         private static string C(string str, bool isColum = false)
         {
-            if (isColum && !string.IsNullOrWhiteSpace(str) && str.Length > ColumnNameMaxLength)
+            if (UseColumnNameMaxLength
+                && isColum
+                && !string.IsNullOrWhiteSpace(str)
+                && str.Length > ColumnNameMaxLength)
             {
                 str = str.Substring(0, ColumnNameMaxLength);
             }
 
-            if (UseUpperCase)
-            {
-                return str?.ToUpperInvariant();
-            }
-
-            return str?.ToLowerInvariant();
+            return C(str);
         }
 
         /// <summary>
@@ -727,32 +762,6 @@ namespace E
 
             return EntityCfgTypes.Exists(o =>
                          o.GetInterface(IEntityTypeConfigurationTypeStr).GetDbSetOrDbQueryTypeStr() == property.GetDbSetOrDbQueryTypeStr());
-        }
-
-        /// <summary>
-        /// 忽略已存在的 QueryTypeConfiguration 校验函数
-        /// [The existing QueryTypeConfiguration validation function is ignored]
-        /// </summary>
-        /// <typeparam name="TDbContext"></typeparam>
-        /// <param name="property"></param>
-        /// <returns></returns>
-        private static bool IgnoreExistQueryTypeConfigurations<TDbContext>(this PropertyInfo property)
-            where TDbContext : DbContext
-        {
-            if (QueryCfgTypes == null)
-            {
-                QueryCfgTypes = typeof(TDbContext).Assembly.GetTypes()
-                  .Where(t =>
-                  {
-                      var implementedInterface = t.GetInterface(IQueryTypeConfigurationTypeStr);
-                      return implementedInterface != null;
-                  })
-                  .ToList();
-
-            }
-
-            return QueryCfgTypes.Exists(o =>
-                         o.GetInterface(IQueryTypeConfigurationTypeStr).GetDbSetOrDbQueryTypeStr() == property.GetDbSetOrDbQueryTypeStr());
         }
 
         #endregion
