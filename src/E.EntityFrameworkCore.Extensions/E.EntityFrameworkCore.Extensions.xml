@@ -4,15 +4,62 @@
         <name>E.EntityFrameworkCore.Extensions</name>
     </assembly>
     <members>
+        <member name="T:E.CheckUseDefaultStringMaxLenghtResult">
+            <summary>
+            检查字符串类型字段长度限制返回结果
+            </summary>
+        </member>
+        <member name="M:E.CheckUseDefaultStringMaxLenghtResult.#ctor">
+            <summary>
+            默认构造函数
+            </summary>
+        </member>
+        <member name="M:E.CheckUseDefaultStringMaxLenghtResult.#ctor(System.Boolean,System.Nullable{System.Int32})">
+            <summary>
+            构造函数
+            </summary>
+            <param name="success">是否成功</param>
+            <param name="maxLength">最大长度</param>
+        </member>
+        <member name="P:E.CheckUseDefaultStringMaxLenghtResult.Success">
+            <summary>
+            是否成功
+            </summary>
+        </member>
+        <member name="P:E.CheckUseDefaultStringMaxLenghtResult.MaxLength">
+            <summary>
+            自定义长度
+            </summary>
+        </member>
+        <member name="T:E.ColumnNameCaseType">
+            <summary>
+            列转换类型
+            </summary>
+        </member>
+        <member name="F:E.ColumnNameCaseType.Default">
+            <summary>
+            默认不做处理
+            </summary>
+        </member>
+        <member name="F:E.ColumnNameCaseType.Upper">
+            <summary>
+            转大写
+            </summary>
+        </member>
+        <member name="F:E.ColumnNameCaseType.Lower">
+            <summary>
+            转小写
+            </summary>
+        </member>
         <member name="T:E.EntityFrameworkCoreTableViewExtensions">
             <summary>
             EntityFrameworkCore 表和视图的扩展
             [Extension to the EntityFrameworkCore table and view]
             </summary>
         </member>
-        <member name="P:E.EntityFrameworkCoreTableViewExtensions.UseUpperCase">
+        <member name="P:E.EntityFrameworkCoreTableViewExtensions.CaseType">
             <summary>
-            启用转大写,默认为false,默认转为小写
+            列名大小写转换类型,默认为不转换
             [Enables uppercase, false by default, and lowercase by default]
             </summary>
         </member>
@@ -46,22 +93,10 @@
             [DbSet type string (carefully modified)]
             </summary>
         </member>
-        <member name="P:E.EntityFrameworkCoreTableViewExtensions.DbQueryTypeStr">
-            <summary>
-            DbQuery 类型字符串(谨慎修改)
-            [DbQuery type string (carefully modified)]
-            </summary>
-        </member>
         <member name="P:E.EntityFrameworkCoreTableViewExtensions.DbSetCheck">
             <summary>
             外部自定义 DbSet 是否处理的检查方法
             [External custom DbSet whether to handle the check method]
-            </summary>
-        </member>
-        <member name="P:E.EntityFrameworkCoreTableViewExtensions.DbQueryCheck">
-            <summary>
-            外部自定义 DbQuery 是否处理的检查方法
-            [External custom DbQuery whether to handle the check method]
             </summary>
         </member>
         <member name="P:E.EntityFrameworkCoreTableViewExtensions.UseColumnNameMaxLength">
@@ -76,14 +111,24 @@
             [Column name maximum length, default 30]
             </summary>
         </member>
-        <member name="F:E.EntityFrameworkCoreTableViewExtensions.IEntityTypeConfigurationTypeStr">
+        <member name="P:E.EntityFrameworkCoreTableViewExtensions.IEntityTypeConfigurationTypeStr">
             <summary>
             IEntityTypeConfiguration 接口字符串
             </summary>
         </member>
-        <member name="F:E.EntityFrameworkCoreTableViewExtensions.IQueryTypeConfigurationTypeStr">
+        <member name="P:E.EntityFrameworkCoreTableViewExtensions.UseDbSetNameToTableName">
             <summary>
-            IQueryTypeConfiguration 接口字符串
+            使用DbSet名称为数据库表名称
+            </summary>
+        </member>
+        <member name="P:E.EntityFrameworkCoreTableViewExtensions.UseDbQueryNameToViewName">
+            <summary>
+            使用DbQuery名称作为数据库视图名称
+            </summary>
+        </member>
+        <member name="P:E.EntityFrameworkCoreTableViewExtensions.CheckUseDefaultStringMaxLength">
+            <summary>
+            外部自定义 设置字符串类型列数据长度 是否处理的检查方法
             </summary>
         </member>
         <member name="P:E.EntityFrameworkCoreTableViewExtensions.TableAttr">
@@ -121,12 +166,7 @@
             实现 IEntityTypeConfiguration 类型的集合
             </summary>
         </member>
-        <member name="P:E.EntityFrameworkCoreTableViewExtensions.QueryCfgTypes">
-            <summary>
-            实现 IQueryTypeConfiguration 类型的集合
-            </summary>
-        </member>
-        <member name="M:E.EntityFrameworkCoreTableViewExtensions.SetAllDbSetTableNameAndColumnName``1(Microsoft.EntityFrameworkCore.ModelBuilder,System.Boolean)">
+        <member name="M:E.EntityFrameworkCoreTableViewExtensions.CaseAllDbSetNameAndColumnName``1(Microsoft.EntityFrameworkCore.ModelBuilder,System.Boolean)">
             <summary>
             设置DbContext的所有DbSet 对应的 表名和列名
             [Set the table and column names for all dbsets of the DbContext]
@@ -136,17 +176,7 @@
             <param name="ignoreExistEntityTypeConfigurations"></param>
             <returns></returns>
         </member>
-        <member name="M:E.EntityFrameworkCoreTableViewExtensions.SetAllDbQueryViewNameAndColumnName``1(Microsoft.EntityFrameworkCore.ModelBuilder,System.Boolean)">
-            <summary>
-            设置DbContext的所有DbQuery  对应的 视图名和列名
-            [Set the view name and column name for all dbqueries of the DbContext]
-            </summary>
-            <typeparam name="TDbContext"></typeparam>
-            <param name="builder"></param>
-            <param name="ignoreExistQueryTypeConfigurations"></param>
-            <returns></returns>
-        </member>
-        <member name="M:E.EntityFrameworkCoreTableViewExtensions.SetTableNameAndAllCloumName(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder,System.String,System.String)">
+        <member name="M:E.EntityFrameworkCoreTableViewExtensions.CaseTableNameAndAllCloumName(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder,System.String,System.String)">
             <summary>
             自动将表名和列名转换大小写,部分特殊列需要手动处理
             [Automatically converts table and column names to case, and some special columns need to be handled manually]
@@ -156,7 +186,7 @@
             <param name="schema"></param>
             <returns></returns>
         </member>
-        <member name="M:E.EntityFrameworkCoreTableViewExtensions.SetTableName(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder,System.String,System.String)">
+        <member name="M:E.EntityFrameworkCoreTableViewExtensions.CaseTableName(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder,System.String,System.String)">
             <summary>
             设置表名和Schema [Set the table name and Schema]
             优先级:
@@ -169,25 +199,17 @@
             <param name="schema"></param>
             <returns></returns>
         </member>
-        <member name="M:E.EntityFrameworkCoreTableViewExtensions.SetAllColumnName(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder)">
-            <summary>
-            设置所有列名,部分特殊列需要手动处理
-            [Set all column names. Some special columns need to be handled manually]
-            </summary>
-            <param name="builder"></param>
-            <returns></returns>
-        </member>
-        <member name="M:E.EntityFrameworkCoreTableViewExtensions.SetViewNameAndAllCloumName(Microsoft.EntityFrameworkCore.Metadata.Builders.QueryTypeBuilder,System.String,System.String)">
+        <member name="M:E.EntityFrameworkCoreTableViewExtensions.CaseViewNameAndAllCloumName(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder,System.String,System.String)">
             <summary>
             自动将视图名和列名转换大小写,部分特殊列需要手动处理
             [Automatically converts view and column names to case, and some special columns need to be handled manually]
             </summary>
             <param name="builder"></param>
-            <param name="tableName"></param>
+            <param name="viewName"></param>
             <param name="schema"></param>
             <returns></returns>
         </member>
-        <member name="M:E.EntityFrameworkCoreTableViewExtensions.SetViewName(Microsoft.EntityFrameworkCore.Metadata.Builders.QueryTypeBuilder,System.String,System.String)">
+        <member name="M:E.EntityFrameworkCoreTableViewExtensions.CaseViewName(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder,System.String,System.String)">
             <summary>
             设置视图名称和Schema [Set the view name and Schema]
             优先级:
@@ -200,7 +222,14 @@
             <param name="schema"></param>
             <returns></returns>
         </member>
-        <member name="M:E.EntityFrameworkCoreTableViewExtensions.SetAllColumnName(Microsoft.EntityFrameworkCore.Metadata.Builders.QueryTypeBuilder)">
+        <member name="M:E.EntityFrameworkCoreTableViewExtensions.CaseViewName(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder,System.String)">
+            <summary>
+            转换视图名称
+            </summary>
+            <param name="entityTypeBuilder"></param>
+            <param name="str"></param>
+        </member>
+        <member name="M:E.EntityFrameworkCoreTableViewExtensions.CaseAllColumnName(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder)">
             <summary>
             设置所有列名,部分特殊列需要手动处理
             [Set all column names. Some special columns need to be handled manually]
@@ -208,17 +237,38 @@
             <param name="builder"></param>
             <returns></returns>
         </member>
-        <member name="M:E.EntityFrameworkCoreTableViewExtensions.SetColumnName(Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder,System.String)">
+        <member name="M:E.EntityFrameworkCoreTableViewExtensions.CaseColumnName(Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder,System.String)">
             <summary>
             设置列名 [Set the column name]
             优先级:
-            * 传入的 columnName
             * 字段标记的 ColumnAttribute 的 Name
+            * 传入的 columnName
             * fieldName
             </summary>
             <param name="property"></param>
             <param name="columnName"></param>
             <returns></returns>
+        </member>
+        <member name="M:E.EntityFrameworkCoreTableViewExtensions.CaseColumnName``2(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder{``0},System.Linq.Expressions.Expression{System.Func{``0,``1}},System.String)">
+            <summary>
+            设置列名(自动转换为大小写)
+            </summary>
+            <typeparam name="TEntity"></typeparam>
+            <typeparam name="TProperty"></typeparam>
+            <param name="builder">ModelBuiler</param>
+            <param name="propertyExpression">属性表达式</param>
+            <param name="columnName">指定列名(不填则使用属性名称)</param>
+            <returns></returns>
+        </member>
+        <member name="M:E.EntityFrameworkCoreTableViewExtensions.CaseColumnName``1(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder,System.String,System.String)">
+            <summary>
+            设置列名(自动转换为大小写)
+            </summary>
+            <typeparam name="TProperty"></typeparam>
+            <param name="builder">ModelBuiler</param>
+            <param name="fieldName">字段(属性名称)</param>
+            <param name="columnName">指定列名(不填则使用属性名称)</param>
+            <returns>Property Builder</returns>
         </member>
         <member name="M:E.EntityFrameworkCoreTableViewExtensions.CheckPropIsColumn(System.Reflection.PropertyInfo)">
             <summary>
@@ -267,6 +317,14 @@
             <param name="type"></param>
             <returns></returns>
         </member>
+        <member name="M:E.EntityFrameworkCoreTableViewExtensions.GetColumnAttribute(System.Reflection.PropertyInfo)">
+            <summary>
+            获取 ColumnAttribute
+            [Get ColumnAttribute]
+            </summary>
+            <param name="propertyInfo"></param>
+            <returns></returns>
+        </member>
         <member name="M:E.EntityFrameworkCoreTableViewExtensions.GetDbSetOrDbQueryTypeStr(System.Type)">
             <summary>
             获取 DbSet 或 DbQuery 类型字符串
@@ -291,6 +349,26 @@
             <param name="property"></param>
             <returns></returns>
         </member>
+        <member name="M:E.EntityFrameworkCoreTableViewExtensions.C(System.String)">
+            <summary>
+            根据配置的转换类型转换大小写
+            </summary>
+            <param name="str"></param>
+            <returns></returns>
+        </member>
+        <member name="M:E.EntityFrameworkCoreTableViewExtensions.SetCaseType(Microsoft.EntityFrameworkCore.ModelBuilder,E.ColumnNameCaseType)">
+            <summary>
+            设置转换类型
+            </summary>
+            <param name="modelBuilder"></param>
+            <param name="caseType"></param>
+        </member>
+        <member name="M:E.EntityFrameworkCoreTableViewExtensions.SetCaseType(E.ColumnNameCaseType)">
+            <summary>
+            设置转换类型
+            </summary>
+            <param name="caseType"></param>
+        </member>
         <member name="M:E.EntityFrameworkCoreTableViewExtensions.C(System.String,System.Boolean)">
             <summary>
             转换字符串大小写
@@ -304,15 +382,6 @@
             <summary>
             忽略已存在的 EntityTypeConfiguration 校验函数
             [The existing EntityTypeConfiguration validation function is ignored]
-            </summary>
-            <typeparam name="TDbContext"></typeparam>
-            <param name="property"></param>
-            <returns></returns>
-        </member>
-        <member name="M:E.EntityFrameworkCoreTableViewExtensions.IgnoreExistQueryTypeConfigurations``1(System.Reflection.PropertyInfo)">
-            <summary>
-            忽略已存在的 QueryTypeConfiguration 校验函数
-            [The existing QueryTypeConfiguration validation function is ignored]
             </summary>
             <typeparam name="TDbContext"></typeparam>
             <param name="property"></param>

@@ -707,7 +707,6 @@ namespace E
         /// <summary>
         /// 设置转换类型
         /// </summary>
-        /// <param name="modelBuilder"></param>
         /// <param name="caseType"></param>
         public static void SetCaseType(ColumnNameCaseType caseType)
         {
