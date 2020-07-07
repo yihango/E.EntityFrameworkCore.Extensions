@@ -9,13 +9,13 @@ EntityFrameworkCore 的扩展库
 ## 功能
 ---
 **目前已经实现的功能**：
-* PostgreSql DbSet和 DbQeruy 表名、视图名、列名自动处理为小写
-* Oracle DbSet 和 DbQuery 表名、视图名、列名自动处理为大写
+* PostgreSql DbSet 表名、视图名、列名自动处理为小写
+* Oracle DbSet 表名、视图名、列名自动处理为大写
 * 自定义 DbSet 校验处理函数
 * 自定义 DbQuery 校验处理函数
 * 自定义 Column(Field) 校验处理函数
 * 自定义列名长度,自动进行裁剪
-* 自动跳过处理 DbContext 程序集中已实现的 IEntityTypeConfiguration 和 IQueryTypeConfiguration
+* 自动跳过处理 DbContext 程序集中已实现的 IEntityTypeConfiguration
 * 增加是否使用 DbSet/DbQuery 名称作为 表名称/视图名称 选项
 * 增加字符串列设置默认数据长度 校验函数
 
@@ -42,56 +42,63 @@ EntityFrameworkCore 的扩展库
 
 **PostgreSql**
 ```
-  base.OnModelCreating(modelBuilder);
+base.OnModelCreating(modelBuilder);
   
-  // 禁用 使用DbSet/DbQuery名称作为表名和视图名称,优先读Table标记,其次类名
-  E.EntityFrameworkCoreTableViewExtensions.UseDbSetNameToTableName = false;
-  E.EntityFrameworkCoreTableViewExtensions.UseDbQueryNameToViewName = false;
-  
-  // 设置转大写为false
-  E.EntityFrameworkCoreTableViewExtensions.UseUpperCase = false;
-  
-  // 增加映射的字段类型字符串, 由于 PostgreSql 支持数据类型过于丰富,此处省略部分...
-  E.EntityFrameworkCoreTableViewExtensions.DbMapTypes.Add("System.String[]");
-  E.EntityFrameworkCoreTableViewExtensions.DbMapTypes.Add("System.Boolean[]");
-  E.EntityFrameworkCoreTableViewExtensions.DbMapTypes.Add("System.Int32[]");
-  
-  // 将名为 YourContext 中的所有 DbSet 和 DbQuery 的表名、视图名、列名转换为小写
-  // 参数位 true,则 自动跳过处理 DbContext 程序集中已实现的 IEntityTypeConfiguration 和 IQueryTypeConfiguration
-  modelBuilder.SetAllDbSetTableNameAndColumnName<YourContext>(/* true */);
-  modelBuilder.SetAllDbQueryViewNameAndColumnName<YourContext>(/* true */);
+// 禁用 使用DbSet名称作为表名和视图名称,优先读Table标记,其次类名
+E.EntityFrameworkCoreTableViewExtensions.UseDbSetNameToTableName = false;
+
+// 设置小写
+E.EntityFrameworkCoreTableViewExtensions.SetCaseType(modelBuilder, ColumnNameCaseType.Lower);
+
+// 自定义要处理的字段类型,较多,此处不贴完整
+E.EntityFrameworkCoreTableViewExtensions.DbMapTypes.Add("System.String[]");
+E.EntityFrameworkCoreTableViewExtensions.DbMapTypes.Add("System.Boolean[]");
+E.EntityFrameworkCoreTableViewExtensions.DbMapTypes.Add("System.Int32[]");
+
+// 处理此数据库上下文类型中 DbSet
+// 参数为 true,则 自动跳过处理 DbContext 程序集中已实现的 IEntityTypeConfiguration 的 DbSet<Entity>
+modelBuilder.CaseAllDbSetNameAndColumnName<BloggingContext>(/* true */);
 
 ```
 
 **Oracle**
 ```
-  base.OnModelCreating(modelBuilder);
-  
-  // 禁用 使用DbSet/DbQuery名称作为表名和视图名称,优先读Table标记,其次类名
-  E.EntityFrameworkCoreTableViewExtensions.UseDbSetNameToTableName = false;
-  E.EntityFrameworkCoreTableViewExtensions.UseDbQueryNameToViewName = false;
-  
-  // 设置转大写为 true
-  E.EntityFrameworkCoreTableViewExtensions.UseUpperCase = true;
-  
-  // 设置字段类型为字符串的默认长度(因为oracle限制字符串最大长度为2000),若字段标记 StringLength 则取 StringLength 长度
-  E.EntityFrameworkCoreTableViewExtensions.UseDefaultStringMaxLength = true;
-  E.EntityFrameworkCoreTableViewExtensions.DefaultStringMaxLength = 256;
-  // 自定义 字符串列数据长度 是否设置默认长度 校验函数
-  E.EntityFrameworkCoreTableViewExtensions.CheckUseDefaultStringMaxLength = (type, prop) =>
-  {
-      // 如果实体的命名空间为 TestWebApp.Database.Models 则设置长度
-      return type.Namespace.StartsWith("TestWebApp.Database.Models");
-  };
-  
-  // 启用限制列名长度,超出长度自动裁剪(因为oracle限制列名最大长度为30)
-  E.EntityFrameworkCoreTableViewExtensions.UseColumnNameMaxLength = true;
-  E.EntityFrameworkCoreTableViewExtensions.ColumnNameMaxLength = 30;
-  
-  // 将名为 YourContext 中的所有 DbSet 和 DbQuery 的表名、视图名、列名转换为大写
-  // 参数位 true,则 自动跳过处理 DbContext 程序集中已实现的 IEntityTypeConfiguration 和 IQueryTypeConfiguration
-  modelBuilder.SetAllDbSetTableNameAndColumnName<YourContext>(/* true */);
-  modelBuilder.SetAllDbQueryViewNameAndColumnName<YourContext>(/* true */);
+base.OnModelCreating(modelBuilder);
+
+
+// 禁用 使用DbSet名称作为表名和视图名称,优先读Table标记,其次类名
+E.EntityFrameworkCoreTableViewExtensions.UseDbSetNameToTableName = false;
+
+// 设置大写
+E.EntityFrameworkCoreTableViewExtensions.SetCaseType(modelBuilder, ColumnNameCaseType.Upper);
+
+// 使用列名长度限制,最大30
+E.EntityFrameworkCoreTableViewExtensions.UseColumnNameMaxLength = true;
+E.EntityFrameworkCoreTableViewExtensions.ColumnNameMaxLength = 30;
+
+// 使用默认字符串长度
+E.EntityFrameworkCoreTableViewExtensions.UseDefaultStringMaxLength = true;
+E.EntityFrameworkCoreTableViewExtensions.DefaultStringMaxLength = 256;
+// 自定义 字符串列数据长度 是否设置默认长度 校验函数
+E.EntityFrameworkCoreTableViewExtensions.CheckUseDefaultStringMaxLength = (type, prop) =>
+{
+
+    var checkResult = new CheckUseDefaultStringMaxLenghtResult();
+
+    // 如果实体的命名空间为 TestWebApp.Database.Models 则设置长度为200
+    if (type.Namespace.StartsWith("TestWebApp.Database.Models"))
+    {
+        checkResult.Success = true;
+        checkResult.MaxLength = 200;
+    }
+
+
+    return checkResult;
+};
+
+// 处理此数据库上下文类型中 DbSet
+// 参数为 true,则 自动跳过处理 DbContext 程序集中已实现的 IEntityTypeConfiguration 的 DbSet<Entity>
+modelBuilder.CaseAllDbSetNameAndColumnName<BloggingContext>(/* true */);
 
 ```
 
@@ -100,13 +107,6 @@ EntityFrameworkCore 的扩展库
 ```
   // DbSet Check
   E.EntityFrameworkCoreTableViewExtensions.DbSetCheck = (info) =>
-  {
-      // 你的校验逻辑
-      return true;// or false
-  };
-  
-  // DbQuery Check
-  E.EntityFrameworkCoreTableViewExtensions.DbQueryCheck = (info) =>
   {
       // 你的校验逻辑
       return true;// or false
