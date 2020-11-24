@@ -1,5 +1,9 @@
 ## E.EntityFrameworkCore.Extensions
 ---
+
+此仓库已停止更新,请移步到此处: [链接](https://github.com/rivenfx/EntityFrameworkCore)
+
+---
 EntityFrameworkCore 的扩展库
 
 [![NuGet Version](https://img.shields.io/nuget/v/E.EntityFrameworkCore.Extensions.svg?style=flat)](https://www.nuget.org/packages/E.EntityFrameworkCore.Extensions/)
